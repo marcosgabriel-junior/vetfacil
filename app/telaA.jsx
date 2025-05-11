@@ -1,119 +1,92 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  FlatList,
-  Text,
-  Image,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import { buscarContatos } from './services/contatoService.js'; // ajuste o caminho se necessário
+import { Text, View, StyleSheet, Image, Pressable, TextInput } from "react-native";
+import { useRouter, Link } from "expo-router";
 
-export default function TelaA() {
-  const [contatos, setContatos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-
-  useEffect(() => {
-    carregarContatos();
-  }, []);
-
-  const carregarContatos = async () => {
-    setCarregando(true);
-    const dados = await buscarContatos();
-    setContatos(dados);
-    setCarregando(false);
-  };
-
+export default function Login() {
+  const router = useRouter();
   return (
-    <View style={styles.container}>
-      {carregando ? (
-        <ActivityIndicator size="large" color="#00BFFF" />
-      ) : (
-        <FlatList
-          data={contatos}
-          keyExtractor={(item) => item.id}
-          numColumns={1}
-          renderItem={({ item, index }) => (
-            <View
-              style={[
-                styles.card,
-                {
-                  backgroundColor:
-                    index % 2 === 0 ? '#E0F7FA' : '#FCE4EC',
-                },
-              ]}
-            >
-              <Image
-                source={{
-                  uri: item.avatar
-                    ? item.avatar
-                    : 'https://i.pravatar.cc/150?u=default',
-                }}
-                style={styles.avatar}
-              />
-              <Text style={styles.nome}>{item.nome}</Text>
-              <Text style={styles.telefone}>{item.telefone}</Text>
-              <Text style={styles.email}>{item.email}</Text>
-              <Text style={styles.info}>
-                Categoria: {item.categoria}
-              </Text>
-              <Text style={styles.info}>
-                Sexo: {item.sexo}
-              </Text>
-              <Text style={styles.info}>
-                Favorito: {item.favorito ? '⭐ Sim' : 'Não'}
-              </Text>
-            </View>
-          )}
-          contentContainerStyle={styles.lista}
-        />
-      )}
+    <View  style={styles.container}>
+      <View style={styles.imagemCont}>
+        <Image style={styles.imagem} source={require('../app/Logo02.png')} />
+      </View>
+      <View style={styles.form}>
+      <View>
+        <Text style={styles.label}>Email</Text>
+        <TextInput placeholder='digite seu e-mail...' style={styles.input}></TextInput>
+        <Text style={styles.label}>Senha</Text>
+         <TextInput placeholder='digite sua senha...' style={styles.input} secureTextEntry></TextInput>
+      </View>
+        <Pressable style={styles.button} onPress={() => router.push('/TelaB')}>
+          <Text style={styles.buttonText}>Acessar</Text>
+        </Pressable>
+        <Link href='/signup/page' style={styles.link}>
+          <Text>Ainda não tem uma conta? Cadastre-se.</Text>
+        </Link>
+      </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2',
-    paddingHorizontal: 10,
-    paddingTop: 10,
-    paddingBottom: 70,
+    backgroundColor: 'rgb(226, 240, 217)',
   },
-  lista: {
+  titulo: {
+    fontSize: 32,
+    textAlign: 'center',
+    marginTop: 15,
+    color: 'white',
+  },
+  imagemCont: {
     justifyContent: 'center',
-    gap: 10,
-  },
-  card: {
-    backgroundColor: '#fff',
-    flex: 1,
-    margin: 5,
-    borderRadius: 10,
     alignItems: 'center',
-    padding: 15,
-    elevation: 2,
+    marginTop: 50,
   },
-  avatar: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    marginBottom: 10,
+  imagem: {
+    height: 350,
+    width: 350
   },
-  nome: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  telefone: {
-    fontSize: 14,
-    color: '#666',
-  },
-  email: {
-    fontSize: 14,
-    color: '#666',
-  },
-  info: {
-    fontSize: 13,
-    color: '#333',
-    marginTop: 2,
-  },
-});
+ form: {
+  flex: 1,
+  backgroundColor: 'rgb(255, 255, 255)',
+  borderTopLeftRadius: 30,
+  borderTopRightRadius: 30,
+  paddingTop: 24,
+  paddingLeft: 14,
+  paddingRight: 14,
+  marginTop: 100,
+ },
+label: {
+  color: 'rgb(255, 255, 255)',
+  marginBottom: 4,
+},
+input:{
+  borderLeftColor: 'rgb(255, 255, 255)',
+  borderRightColor: 'rgb(255, 255, 255)',
+  borderTopColor: 'rgb(255, 255, 255)',
+  borderWidth: 1,
+  borderColor: 'rgb(3, 3, 3)',
+  borderRadius: 8,
+  marginBottom: 16,
+  paddingHorizontal: 8,
+  paddingTop: 14,
+  paddingBottom: 14
+},
+button:{
+  backgroundColor: 'rgb(169, 209, 142)',
+  paddingTop: 14,
+  paddingBottom: 14,
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '100%',
+  borderRadius: 8
+},
+buttonText:{
+  color: 'rgb(255, 255, 255)',
+  fontWeight: 'bold'
+},
+link:{
+  color: 'rgb(204, 228, 189)',
+  marginTop: 16,
+  textAlign: 'center'
+}
+})
