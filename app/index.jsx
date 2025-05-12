@@ -7,14 +7,14 @@ export default function Index() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Pressable style={styles.botao} onPress={() => router.push('/telaA')}>
-          <Text style={styles.texto}>Ir para Tela A</Text>
+        <Pressable style={styles.botao} onPress={() => router.push('/login')}>
+          <Text style={styles.texto}>Ir para Tela de login</Text>
         </Pressable>
         <Pressable style={styles.botao} onPress={() => router.push('/telaB')}>
           <Text style={styles.texto}>Ir para Tela B</Text>
         </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/telaC')}>
-          <Text style={styles.texto}>Ir para Tela C</Text>
+        <Pressable style={styles.botao} onPress={() => router.push('/config')}>
+          <Text style={styles.texto}>Ir para Tela de configuração</Text>
         </Pressable>
         <Pressable style={styles.botao} onPress={() => router.push('/telaD')}>
           <Text style={styles.texto}>Ir para Tela D</Text>

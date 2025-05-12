@@ -15,7 +15,7 @@ export default function Login() {
         <Text style={styles.label}>Senha</Text>
          <TextInput placeholder='digite sua senha...' style={styles.input} secureTextEntry></TextInput>
       </View>
-        <Pressable style={styles.button} onPress={() => router.push('/TelaB')}>
+        <Pressable style={styles.button} onPress={() => router.push('/telaB')}>
           <Text style={styles.buttonText}>Acessar</Text>
         </Pressable>
         <Link href='/signup/page' style={styles.link}>

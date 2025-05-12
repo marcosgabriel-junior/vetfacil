@@ -15,9 +15,9 @@ export default function TopDropDownMenu() {
         onDismiss={closeMenu}
         anchor={<Appbar.Action icon="menu" color="black" onPress={openMenu} />}
       >
-        <Menu.Item onPress={() => router.push('/telaA')} title="Tela A" />
+        <Menu.Item onPress={() => router.push('/login')} title="Login" />
         <Menu.Item onPress={() => router.push('/telaB')} title="Tela B" />
-        <Menu.Item onPress={() => router.push('/telaC')} title="Tela C" />
+        <Menu.Item onPress={() => router.push('/config')} title="Config" />
         <Menu.Item onPress={() => router.push('/telaD')} title="Tela D" />
       </Menu>
       <Appbar.Content title="Meu App" />

@@ -1,5 +1,4 @@
 import { View, Text, StyleSheet } from "react-native";
-//import ButtomMenu from './ButtomMenu';
 
 export default function TelaD() {
   return (
