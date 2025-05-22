@@ -1,0 +1,29 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+    "source.sortMembers": "explicit"
+  },
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/app.zip": true,
+    "**/node_modules": true,
+    "**/app.json": true,
+    "**/package.json": true,
+    "**/README.md": true,
+    "**/tsconfig.json": true,
+    "**/expo-env.d.ts": true,
+    "**/.gitignore": true,
+    "**/assets": true,
+    "**/app-example": true,
+    "**/eslint.config.js": true,
+    "**/package-lock.json": true,
+    "**/.gitattributes": true,
+    "**/.expo": true,
+  }
+}
