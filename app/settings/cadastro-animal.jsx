@@ -1,8 +1,8 @@
 //npx expo install @react-native-async-storage/async-storage
 //npm install react-native-modal-datetime-picker @react-native-community/datetimepicker
 //npx expo install react-native-modal-datetime-picker @react-native-community/datetimepicker
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 export default function CadastroAnimal() {

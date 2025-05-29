@@ -4,9 +4,8 @@ npm install react-native-screens react-native-safe-area-context
 E também não se esqueça de rodar o comando para instalar as dependências de navegação:
 npx pod-install
 */
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Settings() {
   const router = useRouter();
@@ -27,7 +26,7 @@ export default function Settings() {
         <Text style={styles.optionText}>📋 Cadastrar Animal</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/settings/lista-animais')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/listpet')}>
         <Text style={styles.optionText}>🐾 Lista de Animais</Text>
       </TouchableOpacity>
 

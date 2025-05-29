@@ -1,14 +1,25 @@
-// components/BottomMenu.jsx
-import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function BottomMenu() {
   const router = useRouter();
 
   return (
     <View style={styles.menu}>
-      <Pressable onPress={() => router.push('/')}>
-        <Text style={styles.menuText}>🏠 Início</Text>
+
+      <Pressable style={styles.button} onPress={() => router.push('/listpet')}>
+        <Text style={styles.icon}>🐾</Text>
+        <Text style={styles.label}>Pets</Text>
+      </Pressable>
+
+      <Pressable style={styles.button} onPress={() => router.push('/agendamentos')}>
+        <Text style={styles.icon}>📅</Text>
+        <Text style={styles.label}>Agendamentos</Text>
+      </Pressable>
+
+      <Pressable style={styles.button} onPress={() => router.push('/config')}>
+        <Text style={styles.icon}>⚙</Text>
+        <Text style={styles.label}>Configuração</Text>
       </Pressable>
     </View>
   );
@@ -16,18 +27,27 @@ export default function BottomMenu() {
 
 const styles = StyleSheet.create({
   menu: {
-    width: '100%',
-    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: 70,
+    backgroundColor: '#F8FAFC',
     borderTopWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
+    borderColor: '#E5E7EB',
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+  },
+  button: {
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'absolute',
-    bottom: 0
   },
-  menuText: {
-    fontSize: 16,
-    color: '#007AFF'
-  }
+  icon: {
+    fontSize: 22,
+  },
+  label: {
+    fontSize: 12,
+    color: '#374151',
+    marginTop: 2,
+  },
 });

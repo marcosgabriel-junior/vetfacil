@@ -1,12 +1,12 @@
-import { Text, View, StyleSheet, Image, Pressable, TextInput } from "react-native";
-import { useRouter, Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function Login() {
   const router = useRouter();
   return (
     <View  style={styles.container}>
       <View style={styles.imagemCont}>
-        <Image style={styles.imagem} source={require('../app/Logo02.png')} />
+        <Image style={styles.imagem} source={require('../assets/images/Logo02.png')} />
       </View>
       <View style={styles.form}>
       <View>
@@ -15,7 +15,7 @@ export default function Login() {
         <Text style={styles.label}>Senha</Text>
          <TextInput placeholder='digite sua senha...' style={styles.input} secureTextEntry></TextInput>
       </View>
-        <Pressable style={styles.button} onPress={() => router.push('/telaB')}>
+        <Pressable style={styles.button} onPress={() => router.push('/listpet')}>
           <Text style={styles.buttonText}>Acessar</Text>
         </Pressable>
         <Link href='/signup/page' style={styles.link}>
