@@ -19,7 +19,6 @@
     "**/tsconfig.json": true,
     "**/expo-env.d.ts": true,
     "**/.gitignore": true,
-    "**/assets": true,
     "**/app-example": true,
     "**/eslint.config.js": true,
     "**/package-lock.json": true,

@@ -1,6 +1,6 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Appbar, Menu } from 'react-native-paper';
-import { router, useRouter } from 'expo-router';
 
 export default function TopDropDownMenu() {
   const [visible, setVisible] = useState(false);
@@ -16,11 +16,11 @@ export default function TopDropDownMenu() {
         anchor={<Appbar.Action icon="menu" color="black" onPress={openMenu} />}
       >
         <Menu.Item onPress={() => router.push('/login')} title="Login" />
-        <Menu.Item onPress={() => router.push('/telaB')} title="Tela B" />
+        <Menu.Item onPress={() => router.push('/agendamentos')} title="Agendamentos" />
         <Menu.Item onPress={() => router.push('/config')} title="Config" />
-        <Menu.Item onPress={() => router.push('/telaD')} title="Tela D" />
+        <Menu.Item onPress={() => router.push('/')} title="Index" />
       </Menu>
-      <Appbar.Content title="Meu App" />
+      <Appbar.Content title="VetFacil" />
     </Appbar.Header>
   );
 }
