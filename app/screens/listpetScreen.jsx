@@ -14,9 +14,9 @@ export default function Pet() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} style={{ width: "95%" }}>
         {/* Lista de Pets */}
-        <TouchableOpacity onPress={() => router.push('/pet')}>
+        <TouchableOpacity onPress={() => router.push('/screens/petScreen')}>
           <View style={styles.card}>    
-            <Image source={require("../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
+            <Image source={require("../../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
             <View style={styles.infoPet}>
               <Text style={styles.nomePet}>Mel</Text>
               <Text style={styles.tipoPet}>Cachorro</Text>
@@ -24,7 +24,7 @@ export default function Pet() {
           </View>
         </TouchableOpacity>
         <View style={styles.card}>
-          <Image source={require("../assets/images/dog2.jpeg")} style={styles.fotoPet} />
+          <Image source={require("../../assets/images/dog2.jpeg")} style={styles.fotoPet} />
           <View style={styles.infoPet}>
             <Text style={styles.nomePet}>Teddy</Text>
             <Text style={styles.tipoPet}>Cachorro</Text>
@@ -32,7 +32,7 @@ export default function Pet() {
         </View>
 
         <View style={styles.card}>
-          <Image source={require("../assets/images/cat1.jpeg")} style={styles.fotoPet} />
+          <Image source={require("../../assets/images/cat1.jpeg")} style={styles.fotoPet} />
           <View style={styles.infoPet}>
             <Text style={styles.nomePet}>Luna</Text>
             <Text style={styles.tipoPet}>Gato</Text>
@@ -40,7 +40,7 @@ export default function Pet() {
         </View>
 
         <View style={styles.card}>
-          <Image source={require("../assets/images/rat1.jpeg")} style={styles.fotoPet} />
+          <Image source={require("../../assets/images/rat1.jpeg")} style={styles.fotoPet} />
           <View style={styles.infoPet}>
             <Text style={styles.nomePet}>Teo</Text>
             <Text style={styles.tipoPet}>Hamster</Text>
@@ -49,7 +49,7 @@ export default function Pet() {
       </ScrollView>
 
       {/* Botão */}
-      <TouchableOpacity style={styles.botao} onPress={() => router.push('/settings/cadastro-animal')}>
+      <TouchableOpacity style={styles.botao} onPress={() => router.push('/screens/cadastroAnimalScreen')}>
         <Text style={styles.botaoTexto}>＋ Adicionar Pet</Text>
       </TouchableOpacity>
     </View>

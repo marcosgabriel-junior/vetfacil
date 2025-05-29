@@ -7,17 +7,17 @@ export default function BottomMenu() {
   return (
     <View style={styles.menu}>
 
-      <Pressable style={styles.button} onPress={() => router.push('/listpet')}>
+      <Pressable style={styles.button} onPress={() => router.push('../screens/listpetScreen')}>
         <Text style={styles.icon}>🐾</Text>
         <Text style={styles.label}>Pets</Text>
       </Pressable>
 
-      <Pressable style={styles.button} onPress={() => router.push('/agendamentos')}>
+      <Pressable style={styles.button} onPress={() => router.push('../screens/agendamentosScreen')}>
         <Text style={styles.icon}>📅</Text>
         <Text style={styles.label}>Agendamentos</Text>
       </Pressable>
 
-      <Pressable style={styles.button} onPress={() => router.push('/config')}>
+      <Pressable style={styles.button} onPress={() => router.push('../screens/configScreen')}>
         <Text style={styles.icon}>⚙</Text>
         <Text style={styles.label}>Configuração</Text>
       </Pressable>

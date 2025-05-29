@@ -7,16 +7,16 @@ export default function Index() {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Pressable style={styles.botao} onPress={() => router.push('/login')}>
+        <Pressable style={styles.botao} onPress={() => router.push('/screens/loginScreen')}>
           <Text style={styles.texto}>Ir para Login</Text>
         </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/agendamentos')}>
+        <Pressable style={styles.botao} onPress={() => router.push('/screens/agendamentosScreen')}>
           <Text style={styles.texto}>Ir para Agendamentos</Text>
         </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/config')}>
+        <Pressable style={styles.botao} onPress={() => router.push('/screens/configScreen')}>
           <Text style={styles.texto}>Ir para Configuração</Text>
         </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/pet')}>
+        <Pressable style={styles.botao} onPress={() => router.push('/screens/petScreen')}>
           <Text style={styles.texto}>Ir para Pet</Text>
         </Pressable>
       </View>

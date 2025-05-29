@@ -6,7 +6,7 @@ export default function Login() {
   return (
     <View  style={styles.container}>
       <View style={styles.imagemCont}>
-        <Image style={styles.imagem} source={require('../assets/images/Logo02.png')} />
+        <Image style={styles.imagem} source={require('../../assets/images/Logo02.png')} />
       </View>
       <View style={styles.form}>
       <View>
@@ -15,7 +15,7 @@ export default function Login() {
         <Text style={styles.label}>Senha</Text>
          <TextInput placeholder='digite sua senha...' style={styles.input} secureTextEntry></TextInput>
       </View>
-        <Pressable style={styles.button} onPress={() => router.push('/listpet')}>
+        <Pressable style={styles.button} onPress={() => router.push('../screens/listpetScreen')}>
           <Text style={styles.buttonText}>Acessar</Text>
         </Pressable>
         <Link href='/signup/page' style={styles.link}>

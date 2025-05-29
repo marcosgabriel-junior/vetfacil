@@ -8,7 +8,7 @@ export default function Pet() {
 
       {/* Criar modo de editar o cadastro */}
 
-      <Image source={require("../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
+      <Image source={require("../../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
 
       {/* Nome, raça e idade (pegar do cadastro futuramente)*/}
       <Text style={styles.nomePet}>Mel</Text>
@@ -18,7 +18,7 @@ export default function Pet() {
 
       {/* Eventos que esse pet tem */}
       <View style={styles.card}>
-        <Image source={require("../assets/images/seringa.png")} style={styles.icone} />
+        <Image source={require("../../assets/images/seringa.png")} style={styles.icone} />
         <View>
           <Text style={styles.tituloCard}>Vacina</Text>
           <Text style={styles.subtituloCard}>Proxima semana</Text>
@@ -26,7 +26,7 @@ export default function Pet() {
       </View>
 
       <View style={styles.card}>
-        <Image source={require("../assets/images/tesouras.png")} style={styles.icone} />
+        <Image source={require("../../assets/images/tesouras.png")} style={styles.icone} />
         <View>
           <Text style={styles.tituloCard}>Tosa</Text>
           <Text style={styles.subtituloCard}>Em 2 semanas</Text>

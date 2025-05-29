@@ -14,23 +14,23 @@ export default function Settings() {
     <View style={styles.container}>
       <Text style={styles.title}>Configurações</Text>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/settings/conta')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/contaScreen')}>
         <Text style={styles.optionText}>👤 Conta</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/settings/notificacoes')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/notificacoesScreen')}>
       <Text style={styles.optionText}>🔔 Notificações</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/settings/cadastro-animal')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/cadastroAnimalScreen')}>
         <Text style={styles.optionText}>📋 Cadastrar Animal</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/listpet')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/listpetScreen')}>
         <Text style={styles.optionText}>🐾 Lista de Animais</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.option, styles.logout]} onPress={() => router.replace('/login')}>
+      <TouchableOpacity style={[styles.option, styles.logout]} onPress={() => router.replace('/screens/loginScreen')}>
         <Text style={[styles.optionText, styles.logoutText]}>🚪 Sair da Conta</Text>
       </TouchableOpacity>
     </View>

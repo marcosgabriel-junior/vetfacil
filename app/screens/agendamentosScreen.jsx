@@ -12,7 +12,7 @@ export default function Agendamentos() {
 
       <View style={styles.card}>
         <View style={styles.iconeBox}>
-          <Image source={require("../assets/images/seringa.png")} style={styles.icone} />
+          <Image source={require("../../assets/images/seringa.png")} style={styles.icone} />
         </View>
         <View style={styles.info}>
           <Text style={styles.tituloCard}>Raiva</Text>
@@ -23,7 +23,7 @@ export default function Agendamentos() {
 
       <View style={styles.card}>
         <View style={styles.iconeBox}>
-          <Image source={require("../assets/images/tesouras.png")} style={styles.icone} />
+          <Image source={require("../../assets/images/tesouras.png")} style={styles.icone} />
         </View>
         <View style={styles.info}>
           <Text style={styles.tituloCard}>Consulta de rotina</Text>
@@ -37,7 +37,7 @@ export default function Agendamentos() {
 
       <View style={styles.card}>
         <View style={styles.iconeBox}>
-          <Image source={require("../assets/images/seringa.png")} style={styles.icone} />
+          <Image source={require("../../assets/images/seringa.png")} style={styles.icone} />
         </View>
         <View style={styles.info}>
           <Text style={styles.tituloCard}>V8</Text>
@@ -48,7 +48,7 @@ export default function Agendamentos() {
 
       <View style={styles.card}>
         <View style={styles.iconeBox}>
-          <Image source={require("../assets/images/tesouras.png")} style={styles.icone} />
+          <Image source={require("../../assets/images/tesouras.png")} style={styles.icone} />
         </View>
         <View style={styles.info}>
           <Text style={styles.tituloCard}>Banho e tosa</Text>

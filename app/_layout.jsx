@@ -1,8 +1,8 @@
 import { Slot } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-import ButtomMenu from './ButtomMenu';
-import TopDropDownMenu from './TopDropDownMenu';
+import ButtomMenu from './components/ButtomMenuComponents';
+import TopDropDownMenu from './components/TopDropDownMenuComponents';
 
 export default function Layout() {
   return (
