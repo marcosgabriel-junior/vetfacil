@@ -15,10 +15,9 @@ export default function TopDropDownMenu() {
         onDismiss={closeMenu}
         anchor={<Appbar.Action icon="menu" color="black" onPress={openMenu} />}
       >
-        <Menu.Item onPress={() => router.push('/login')} title="Login" />
-        <Menu.Item onPress={() => router.push('/agendamentos')} title="Agendamentos" />
-        <Menu.Item onPress={() => router.push('/config')} title="Config" />
         <Menu.Item onPress={() => router.push('/')} title="Index" />
+        <Menu.Item onPress={() => router.push('/login')} title="Login" />
+        
       </Menu>
       <Appbar.Content title="VetFacil" />
     </Appbar.Header>

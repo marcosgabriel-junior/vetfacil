@@ -6,10 +6,6 @@ export default function BottomMenu() {
 
   return (
     <View style={styles.menu}>
-      <Pressable style={styles.button} onPress={() => router.push('/')}>
-        <Text style={styles.icon}>🏠</Text>
-        <Text style={styles.label}>Inicio</Text>
-      </Pressable>
 
       <Pressable style={styles.button} onPress={() => router.push('/listpet')}>
         <Text style={styles.icon}>🐾</Text>
@@ -21,9 +17,9 @@ export default function BottomMenu() {
         <Text style={styles.label}>Agendamentos</Text>
       </Pressable>
 
-      <Pressable style={styles.button} onPress={() => router.push('/settings/conta')}>
-        <Text style={styles.icon}>👤</Text>
-        <Text style={styles.label}>Perfil</Text>
+      <Pressable style={styles.button} onPress={() => router.push('/config')}>
+        <Text style={styles.icon}>⚙</Text>
+        <Text style={styles.label}>Configuração</Text>
       </Pressable>
     </View>
   );

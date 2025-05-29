@@ -14,14 +14,15 @@ export default function Pet() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} style={{ width: "95%" }}>
         {/* Lista de Pets */}
-        <View style={styles.card}>
-          <Image source={require("../assets/images/dog1.jpeg")} style={styles.fotoPet} />
-          <View style={styles.infoPet}>
-            <Text style={styles.nomePet}>Mel</Text>
-            <Text style={styles.tipoPet}>Cachorro</Text>
+        <TouchableOpacity onPress={() => router.push('/pet')}>
+          <View style={styles.card}>    
+            <Image source={require("../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
+            <View style={styles.infoPet}>
+              <Text style={styles.nomePet}>Mel</Text>
+              <Text style={styles.tipoPet}>Cachorro</Text>
+            </View>
           </View>
-        </View>
-
+        </TouchableOpacity>
         <View style={styles.card}>
           <Image source={require("../assets/images/dog2.jpeg")} style={styles.fotoPet} />
           <View style={styles.infoPet}>
