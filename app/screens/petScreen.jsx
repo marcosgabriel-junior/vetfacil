@@ -34,7 +34,7 @@ export default function Pet() {
       </View>
 
       {/* Botão de adicionar evento */}
-      <TouchableOpacity style={styles.botao}>
+      <TouchableOpacity style={styles.botao} onPress={() => router.push('/screens/novoAgendamentoScreens')}>
         <Text style={styles.botaoTexto}>+ Novo evento</Text>
       </TouchableOpacity>
     </View>
