@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react'; // Importe useEffect
+import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { initDB } from './services/database'; // Importe a função initDB do seu serviço de banco de dados
+import { initDB } from './index'; // Importe a função initDB do seu arquivo de banco de dados na mesma pasta
 
 export default function Index() {
   const router = useRouter();
@@ -23,8 +23,9 @@ export default function Index() {
         <Pressable style={styles.botao} onPress={() => router.push('/screens/configScreen')}>
           <Text style={styles.texto}>Ir para Configuração</Text>
         </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/screens/petScreen')}>
-          <Text style={styles.texto}>Ir para Pet</Text>
+        {/* Este botão para PetScreen agora deve funcionar corretamente após login */}
+        <Pressable style={styles.botao} onPress={() => router.push('/screens/listpetScreen')}>
+          <Text style={styles.texto}>Ir para Meus Pets</Text>
         </Pressable>
       </View>
     </View>
