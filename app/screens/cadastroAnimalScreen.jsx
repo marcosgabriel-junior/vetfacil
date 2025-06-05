@@ -1,39 +1,52 @@
-//npx expo install @react-native-async-storage/async-storage
-//npm install react-native-modal-datetime-picker @react-native-community/datetimepicker
-//npx expo install react-native-modal-datetime-picker @react-native-community/datetimepicker
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // Adicionado Alert
 
 export default function CadastroAnimal() {
   const [nome, setNome] = useState('');
   const [especie, setEspecie] = useState('');
   const [raca, setRaca] = useState('');
-
-  // Estado começa como `null`, ou seja, sem data selecionada
-  const [nascimento, setNascimento] = useState(null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-
-  const handleConfirm = (date) => {
-    setNascimento(date);
-    hideDatePicker();
-  };
-
-  const formatarData = (data) => {
-    return data.toLocaleDateString('pt-BR');
-  };
+  
+  // O estado 'nascimento' agora será uma string no formato 'DD/MM/AAAA' para o TextInput
+  const [nascimentoInput, setNascimentoInput] = useState('');
 
   const handleSalvar = () => {
-    if (!nome || !especie || !raca || !nascimento) {
-      alert('Por favor, preencha todos os campos.');
+    // Validar se todos os campos estão preenchidos
+    if (!nome || !especie || !raca || !nascimentoInput) {
+      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
       return;
     }
 
-    console.log({ nome, especie, raca, nascimento });
-    alert('Animal cadastrado!');
+    // Tentar converter a string de data para um objeto Date
+    const partesData = nascimentoInput.split('/');
+    if (partesData.length !== 3) {
+      Alert.alert('Erro', 'Formato de data inválido. Use DD/MM/AAAA.');
+      return;
+    }
+    const dia = parseInt(partesData[0], 10);
+    const mes = parseInt(partesData[1], 10) - 1; // Mês é baseado em 0 (janeiro é 0)
+    const ano = parseInt(partesData[2], 10);
+
+    const dataNascimentoObj = new Date(ano, mes, dia);
+
+    // Validação básica da data (se é uma data válida e não futura)
+    if (isNaN(dataNascimentoObj.getTime()) || dataNascimentoObj > new Date()) {
+        Alert.alert('Erro', 'Data de nascimento inválida ou futura.');
+        return;
+    }
+
+    console.log({
+      nome,
+      especie,
+      raca,
+      nascimento: dataNascimentoObj, // Enviando o objeto Date
+    });
+    Alert.alert('Sucesso', 'Animal cadastrado!');
+
+    // Opcional: Limpar os campos após o cadastro
+    setNome('');
+    setEspecie('');
+    setRaca('');
+    setNascimentoInput('');
   };
 
   return (
@@ -64,20 +77,13 @@ export default function CadastroAnimal() {
         onChangeText={setRaca}
       />
 
-      <Text style={styles.label}>Data de nascimento</Text>
-      <TouchableOpacity style={styles.input} onPress={showDatePicker}>
-        <Text style={{ color: nascimento ? '#000' : '#999' }}>
-          {nascimento ? formatarData(nascimento) : 'Ex: 12/04/2020'}
-        </Text>
-      </TouchableOpacity>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-        maximumDate={new Date()}
-        locale="pt-BR"
+      <Text style={styles.label}>Data de nascimento (DD/MM/AAAA)</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Ex: 12/04/2020"
+        value={nascimentoInput}
+        onChangeText={setNascimentoInput}
+        keyboardType="numeric" // Sugere teclado numérico para facilitar a digitação da data
       />
 
       <TouchableOpacity style={styles.button} onPress={handleSalvar}>
