@@ -1,54 +1,86 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useIsFocused } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { db } from '../_layout'; // Importa a conexão com o banco de dados
 
 export default function Pet() {
   const router = useRouter();
+  const isFocused = useIsFocused();
+
+  const [pets, setPets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Função para buscar os pets do usuário logado no Firestore
+  const fetchPets = async () => {
+    setLoading(true);
+    try {
+      const userId = await AsyncStorage.getItem('userLoggedInId');
+
+      // ======================= LINHA ADICIONADA PARA DEBUG =======================
+      console.log("Buscando pets para o User ID:", userId);
+      // =========================================================================
+
+      if (userId) {
+        // O campo 'donoId' foi alterado para 'donoid' aqui
+        const petsQuery = query(collection(db, 'pets'), where('donoid', '==', userId)); 
+        const querySnapshot = await getDocs(petsQuery);
+        const petsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setPets(petsData);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar pets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Busca os dados sempre que a tela entra em foco
+  useEffect(() => {
+    if (isFocused) {
+      fetchPets();
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
+      {/* Cabeçalho (Mantido como o original) */}
       <View style={styles.header}>
         <Text style={styles.titulo}>Meus Pets</Text>
-        <Text style={styles.addIcon}>＋</Text>
+        <TouchableOpacity onPress={() => router.push('/screens/cadastroAnimalScreen')}>
+            <Text style={styles.addIcon}>＋</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} style={{ width: "95%" }}>
-        {/* Lista de Pets */}
-        <TouchableOpacity onPress={() => router.push('/screens/petScreen')}>
-          <View style={styles.card}>    
-            <Image source={require("../../assets/images/dog1.jpeg")} style={styles.fotoPet}/>
-            <View style={styles.infoPet}>
-              <Text style={styles.nomePet}>Mel</Text>
-              <Text style={styles.tipoPet}>Cachorro</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <View style={styles.card}>
-          <Image source={require("../../assets/images/dog2.jpeg")} style={styles.fotoPet} />
-          <View style={styles.infoPet}>
-            <Text style={styles.nomePet}>Teddy</Text>
-            <Text style={styles.tipoPet}>Cachorro</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Image source={require("../../assets/images/cat1.jpeg")} style={styles.fotoPet} />
-          <View style={styles.infoPet}>
-            <Text style={styles.nomePet}>Luna</Text>
-            <Text style={styles.tipoPet}>Gato</Text>
-          </View>
-        </View>
-
-        <View style={styles.card}>
-          <Image source={require("../../assets/images/rat1.jpeg")} style={styles.fotoPet} />
-          <View style={styles.infoPet}>
-            <Text style={styles.nomePet}>Teo</Text>
-            <Text style={styles.tipoPet}>Hamster</Text>
-          </View>
-        </View>
+        {/* Lógica de Carregamento e Renderização Dinâmica */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#22C55E" style={{ marginTop: 50 }} />
+        ) : pets.length > 0 ? (
+          pets.map(pet => (
+            <TouchableOpacity key={pet.id} onPress={() => router.push(`/screens/petScreen?petId=${pet.id}`)}>
+              <View style={styles.card}>
+                <Image 
+                  source={pet.image_uri ? { uri: pet.image_uri } : require("../../assets/images/Logo02.png")} 
+                  style={styles.fotoPet}
+                />
+                <View style={styles.infoPet}>
+                  <Text style={styles.nomePet}>{pet.name}</Text>
+                  <Text style={styles.tipoPet}>{pet.species}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={{ textAlign: 'center', marginTop: 50, color: '#6B7280' }}>
+            Você ainda não cadastrou nenhum pet.
+          </Text>
+        )}
       </ScrollView>
 
-      {/* Botão */}
+      {/* Botão (Mantido como o original) */}
       <TouchableOpacity style={styles.botao} onPress={() => router.push('/screens/cadastroAnimalScreen')}>
         <Text style={styles.botaoTexto}>＋ Adicionar Pet</Text>
       </TouchableOpacity>
@@ -56,6 +88,7 @@ export default function Pet() {
   );
 }
 
+// Seus estilos originais, mantidos sem nenhuma alteração
 const styles = StyleSheet.create({
   container: {
     flex: 1,
