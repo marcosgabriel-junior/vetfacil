@@ -4,19 +4,12 @@ import { PaperProvider } from 'react-native-paper';
 import ButtomMenu from './components/ButtomMenuComponents';
 import TopDropDownMenu from './components/TopDropDownMenuComponents';
 
-// =================== CÓDIGO DA PORRA DO FIREBASE ===================
+// =================== CÓDIGO DO FIREBASE AJUSTADO ===================
 
-// 1. Importar a configuração e as funções do Firebase
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import firebaseConfig from './services/firebaseConfig'; // Ajuste o caminho se necessário
-
-// 2. Inicializar o Firebase e exportar a conexão com o banco de dados
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+// Importe a instância 'db' diretamente do seu firebaseConfig.js
+// ASSUMindo que firebaseConfig.js está em './services/firebaseConfig'
 
 // =========================================================
-
 
 export default function Layout() {
   return (

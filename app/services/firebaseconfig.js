@@ -1,3 +1,7 @@
+// VETFACIL/vscode/app/services/firebaseConfig.js
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+
 const firebaseConfig = {
   apiKey: "AIzaSyD6-vCJZNOegSLJXtW3cgxd66XUrUsk8-Q",
   authDomain: "vetfacil-ec010.firebaseapp.com",
@@ -8,5 +12,5 @@ const firebaseConfig = {
   measurementId: "G-JKYS6TEGG8"
 };
 
-//exporta configuração
-export default firebaseConfig;
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
