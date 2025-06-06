@@ -1,12 +1,11 @@
-//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const firebaseConfig = {
-  apiKey: "AIzaSyD6-vc...",
-  authDomain: "vetfacil-ec818.firebaseapp.com",
-  projectId: "vetfacil-ec818",
-  storageBucket: "vetfacil-ec818.firebaseappstorage.com",
-  messagingSenderId: "335392793884",
-  appId: "1:335392793884:web:7b6c61071198cebbfad831",
-  measurementId: "G-JNY56T66S8"
+  apiKey: "AIzaSyD6-vCJZNOegSLJXtW3cgxd66XUrUsk8-Q",
+  authDomain: "vetfacil-ec010.firebaseapp.com",
+  projectId: "vetfacil-ec010",
+  storageBucket: "vetfacil-ec010.firebasestorage.app",
+  messagingSenderId: "335392990884",
+  appId: "1:335392990884:web:76b6c1071198cebbfea831",
+  measurementId: "G-JKYS6TEGG8"
 };
 
 //exporta configuração

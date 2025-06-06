@@ -1,14 +1,11 @@
 // loginScreen.jsx
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Para armazenar o ID do usuário logado
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-// ======================= MUDANÇA 1: NOVOS IMPORTS =======================
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { app } from '../_layout'; // Importa o 'app' Firebase inicializado do seu layout
-// A linha "import { getUserByEmailAndPassword }..." foi REMOVIDA
-// ======================================================================
+import { app } from '../_layout';
 
 // O componente de Alerta Customizado não precisa de mudanças
 const CustomAlert = ({ message, onClose }) => {
@@ -29,10 +26,7 @@ const CustomAlert = ({ message, onClose }) => {
 const alertStyles = StyleSheet.create({
   overlay: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -76,15 +70,12 @@ export default function Login() {
     }
 
     try {
-      // ======================= MUDANÇA 2: LÓGICA DE LOGIN COM FIREBASE =======================
-      // Obter o serviço de autenticação e tentar fazer login
       const auth = getAuth(app);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       
       const user = userCredential.user;
 
       if (user) {
-        // Login bem-sucedido: armazena o ID do usuário (user.uid)
         await AsyncStorage.setItem('userLoggedInId', user.uid);
         
         setAlertMessage("Login realizado com sucesso!");
@@ -93,16 +84,13 @@ export default function Login() {
           router.replace('/screens/listpetScreen');
         }, 1500);
       }
-      // =====================================================================================
 
     } catch (error) {
       console.error("Erro ao fazer login:", error.code, error.message);
-      // Trata os erros comuns de autenticação do Firebase
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setAlertMessage("Email ou senha incorretos.");
-      } else {
-        setAlertMessage("Ocorreu um erro ao tentar fazer login.");
-      }
+      // ======================= MUDANÇA PARA DEBUG =======================
+      // A linha abaixo vai mostrar o código de erro exato na tela
+      setAlertMessage(`Erro do Firebase: ${error.code}`);
+      // ==================================================================
     }
   };
 
