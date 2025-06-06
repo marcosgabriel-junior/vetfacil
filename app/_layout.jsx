@@ -9,7 +9,7 @@ import TopDropDownMenu from './components/TopDropDownMenuComponents';
 // 1. Importar a configuração e as funções do Firebase
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import firebaseConfig from '../services/firebaseConfig'; // Ajuste o caminho se necessário
+import firebaseConfig from './services/firebaseConfig'; // Ajuste o caminho se necessário
 
 // 2. Inicializar o Firebase e exportar a conexão com o banco de dados
 const app = initializeApp(firebaseConfig);

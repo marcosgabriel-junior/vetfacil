@@ -1,6 +1,4 @@
-// vetfacil/services/firebaseConfig.js
-
-// PASSO 1: O objeto de configuração
+//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 const firebaseConfig = {
   apiKey: "AIzaSyD6-vc...",
   authDomain: "vetfacil-ec818.firebaseapp.com",
@@ -11,5 +9,5 @@ const firebaseConfig = {
   measurementId: "G-JNY56T66S8"
 };
 
-// PASSO 2: A linha que exporta a configuração
+//exporta configuração
 export default firebaseConfig;

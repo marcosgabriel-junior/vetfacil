@@ -3,9 +3,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage"; // Para ar
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { getUserByEmailAndPassword } from '../services/database'; // Importa a função de login do seu DB
 
-// Componente de Modal Customizada (reutilizado de outras telas)
+// ======================= MUDANÇA 1: NOVOS IMPORTS =======================
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { app } from '../_layout'; // Importa o 'app' Firebase inicializado do seu layout
+// A linha "import { getUserByEmailAndPassword }..." foi REMOVIDA
+// ======================================================================
+
+// O componente de Alerta Customizado não precisa de mudanças
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
   return (
@@ -20,6 +25,7 @@ const CustomAlert = ({ message, onClose }) => {
   );
 };
 
+// Seus estilos do Alerta não precisam de mudanças
 const alertStyles = StyleSheet.create({
   overlay: {
     position: 'absolute',
@@ -57,12 +63,11 @@ const alertStyles = StyleSheet.create({
   },
 });
 
-
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [alertMessage, setAlertMessage] = useState(''); // Estado para a mensagem da modal
+  const [alertMessage, setAlertMessage] = useState('');
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -71,33 +76,40 @@ export default function Login() {
     }
 
     try {
-      // Tenta buscar o usuário no banco de dados com as credenciais fornecidas
-      const user = await getUserByEmailAndPassword(email, password);
+      // ======================= MUDANÇA 2: LÓGICA DE LOGIN COM FIREBASE =======================
+      // Obter o serviço de autenticação e tentar fazer login
+      const auth = getAuth(app);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      const user = userCredential.user;
 
       if (user) {
-        // Login bem-sucedido: armazena o ID do usuário no AsyncStorage
-        await AsyncStorage.setItem('userLoggedInId', user.id.toString());
+        // Login bem-sucedido: armazena o ID do usuário (user.uid)
+        await AsyncStorage.setItem('userLoggedInId', user.uid);
+        
         setAlertMessage("Login realizado com sucesso!");
-        // Redireciona para a tela de lista de pets após um pequeno atraso
         setTimeout(() => {
-          setAlertMessage(''); // Limpa a mensagem antes de navegar
-          router.replace('/screens/listpetScreen'); // Usa replace para não permitir voltar para o login pelo botão voltar
+          setAlertMessage('');
+          router.replace('/screens/listpetScreen');
         }, 1500);
-      } else {
-        // Credenciais incorretas
-        setAlertMessage("Email ou senha incorretos.");
       }
+      // =====================================================================================
+
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      setAlertMessage("Ocorreu um erro ao tentar fazer login: " + error.message);
+      console.error("Erro ao fazer login:", error.code, error.message);
+      // Trata os erros comuns de autenticação do Firebase
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        setAlertMessage("Email ou senha incorretos.");
+      } else {
+        setAlertMessage("Ocorreu um erro ao tentar fazer login.");
+      }
     }
   };
 
+  // O seu return com a interface (JSX) continua o mesmo.
   return (
     <View style={styles.container}>
-      {/* Componente da modal customizada */}
       <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
-
       <View style={styles.imagemCont}>
         <Image style={styles.imagem} source={require('../../assets/images/Logo02.png')} />
       </View>
@@ -109,22 +121,21 @@ export default function Login() {
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            keyboardType="email-address" // Facilita a digitação de email
-            autoCapitalize="none" // Evita auto-capitalização de email
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
           <Text style={styles.label}>Senha</Text>
           <TextInput
             placeholder='digite sua senha...'
             style={styles.input}
-            secureTextEntry // Esconde a senha
+            secureTextEntry
             value={password}
             onChangeText={setPassword}
           />
         </View>
-        <Pressable style={styles.button} onPress={handleLogin}> {/* Chama handleLogin */}
+        <Pressable style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Acessar</Text>
         </Pressable>
-        {/* Link para a tela de cadastro (ajustado para a nova estrutura) */}
         <Link href='/screens/signupScreen' style={styles.link}>
           <Text>Ainda não tem uma conta? Cadastre-se.</Text>
         </Link>
@@ -133,6 +144,7 @@ export default function Login() {
   );
 }
 
+// Seus estilos para a tela não precisam de mudanças
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -164,17 +176,17 @@ const styles = StyleSheet.create({
     marginTop: 100,
   },
   label: {
-    color: '#333', // Alterado para ser visível no fundo branco do formulário
+    color: '#333',
     marginBottom: 4,
     fontSize: 16,
     fontWeight: 'bold',
   },
   input: {
     borderWidth: 1,
-    borderColor: '#CCC', // Cor de borda mais suave
+    borderColor: '#CCC',
     borderRadius: 8,
     marginBottom: 16,
-    paddingHorizontal: 12, // Um pouco mais de padding horizontal
+    paddingHorizontal: 12,
     paddingVertical: 14,
     fontSize: 16,
   },
@@ -185,7 +197,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     borderRadius: 8,
-    marginTop: 20, // Espaçamento do input
+    marginTop: 20,
   },
   buttonText: {
     color: 'rgb(255, 255, 255)',
@@ -193,7 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   link: {
-    color: '#007AFF', // Cor de link padrão para melhor contraste
+    color: '#007AFF',
     marginTop: 16,
     textAlign: 'center',
     fontSize: 15,
