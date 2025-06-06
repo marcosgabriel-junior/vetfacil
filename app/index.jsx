@@ -1,15 +1,12 @@
+// index.jsx
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import React from 'react'; // O useEffect foi removido pois não é mais usado aqui
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { initDB } from './services/database'; //importando o banco de dados favor não mexer feito pelo marcos.
 
 export default function Index() {
   const router = useRouter();
 
-  // Adicione este useEffect para inicializar o banco de dados
-  useEffect(() => {
-    initDB(); // Chama a função que verifica/cria suas tabelas
-  }, []); // O array vazio [] garante que esta função execute apenas uma vez, na montagem do componente
+  // O bloco useEffect que chamava initDB() foi removido.
 
   return (
     <View style={{ flex: 1 }}>
@@ -23,7 +20,6 @@ export default function Index() {
         <Pressable style={styles.botao} onPress={() => router.push('/screens/configScreen')}>
           <Text style={styles.texto}>Ir para Configuração</Text>
         </Pressable>
-        {/* Este botão para PetScreen agora deve funcionar corretamente após login */}
         <Pressable style={styles.botao} onPress={() => router.push('/screens/listpetScreen')}>
           <Text style={styles.texto}>Ir para Meus Pets</Text>
         </Pressable>

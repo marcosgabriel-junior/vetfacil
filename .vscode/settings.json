@@ -22,7 +22,7 @@
     "**/package-lock.json": true,
     "**/.gitattributes": true,
     "**/.expo": true,
-    //"**/app.json": true,
-    //"**/package.json": true,
+    "**/app.json": true,
+    "**/package.json": true,
   }
 }
