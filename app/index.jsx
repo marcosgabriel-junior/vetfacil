@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { initDB } from './index'; // Importe a função initDB do seu arquivo de banco de dados na mesma pasta
+import { initDB } from './services/database'; //importando o banco de dados favor não mexer feito pelo marcos.
 
 export default function Index() {
   const router = useRouter();

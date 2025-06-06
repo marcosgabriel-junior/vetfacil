@@ -1,11 +1,3 @@
-<<<<<<< Updated upstream
-//npx expo install @react-native-async-storage/async-storage
-//npm install react-native-modal-datetime-picker @react-native-community/datetimepicker
-//npx expo install react-native-modal-datetime-picker @react-native-community/datetimepicker
-import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-=======
 // cadastroAnimalScreen.jsx
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage for user session
 import { useRouter } from 'expo-router'; // Import useRouter for navigation
@@ -67,40 +59,12 @@ const alertStyles = StyleSheet.create({
   },
 });
 
->>>>>>> Stashed changes
 
 export default function CadastroAnimal() {
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [especie, setEspecie] = useState('');
   const [raca, setRaca] = useState('');
-<<<<<<< Updated upstream
-
-  // Estado começa como `null`, ou seja, sem data selecionada
-  const [nascimento, setNascimento] = useState(null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-
-  const handleConfirm = (date) => {
-    setNascimento(date);
-    hideDatePicker();
-  };
-
-  const formatarData = (data) => {
-    return data.toLocaleDateString('pt-BR');
-  };
-
-  const handleSalvar = () => {
-    if (!nome || !especie || !raca || !nascimento) {
-      alert('Por favor, preencha todos os campos.');
-      return;
-    }
-
-    console.log({ nome, especie, raca, nascimento });
-    alert('Animal cadastrado!');
-=======
   const [sexo, setSexo] = useState(''); // New state for pet sex
   const [nascimento, setNascimento] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -196,7 +160,6 @@ export default function CadastroAnimal() {
       console.error('Error saving animal:', error);
       setAlertMessage('Ocorreu um erro ao salvar o animal: ' + error.message);
     }
->>>>>>> Stashed changes
   };
 
   return (
@@ -229,8 +192,6 @@ export default function CadastroAnimal() {
         value={raca}
         onChangeText={setRaca}
       />
-<<<<<<< Updated upstream
-=======
       
       <Text style={styles.label}>Sexo (Macho/Fêmea)</Text> {/* New input for sex */}
       <TextInput
@@ -240,16 +201,11 @@ export default function CadastroAnimal() {
         onChangeText={setSexo}
         autoCapitalize="words" // Capitalize first letter
       />
->>>>>>> Stashed changes
 
       <Text style={styles.label}>Data de nascimento</Text>
       <TouchableOpacity style={styles.input} onPress={showDatePicker}>
         <Text style={{ color: nascimento ? '#000' : '#999' }}>
-<<<<<<< Updated upstream
-          {nascimento ? formatarData(nascimento) : 'Ex: 12/04/2020'}
-=======
           {nascimento ? formatarDataParaExibicao(nascimento) : 'Ex: 12/04/2020'}
->>>>>>> Stashed changes
         </Text>
       </TouchableOpacity>
 
@@ -258,13 +214,8 @@ export default function CadastroAnimal() {
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
-<<<<<<< Updated upstream
-        maximumDate={new Date()}
-        locale="pt-BR"
-=======
         maximumDate={new Date()} // Prevents selecting future dates
         locale="pt-BR" // Set locale for Brazilian Portuguese date format
->>>>>>> Stashed changes
       />
 
       <TouchableOpacity style={styles.button} onPress={handleSalvar}>
