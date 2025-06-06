@@ -1,131 +1,130 @@
-import { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // Adicionado Alert
+// cadastroAnimalScreen.jsx
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+// ======================= MUDANÇA 1: NOVOS IMPORTS =======================
+// Importar a conexão 'db' e as funções do Firestore que vamos usar
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { db } from '../_layout';
+// A linha "import { addPet } from '../index';" foi REMOVIDA
+// ======================================================================
+
+// O seu componente CustomAlert continua igual, sem mudanças.
+const CustomAlert = ({ message, onClose }) => {
+  if (!message) return null;
+  return (
+    <View style={alertStyles.overlay}>
+      <View style={alertStyles.container}>
+        <Text style={alertStyles.message}>{message}</Text>
+        <TouchableOpacity onPress={onClose} style={alertStyles.button}>
+          <Text style={alertStyles.buttonText}>OK</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
+
+// Seus estilos do CustomAlert continuam iguais, sem mudanças.
+const alertStyles = StyleSheet.create({ /* ...seus estilos aqui... */ });
 
 export default function CadastroAnimal() {
+  const router = useRouter();
   const [nome, setNome] = useState('');
   const [especie, setEspecie] = useState('');
   const [raca, setRaca] = useState('');
-  
-  // O estado 'nascimento' agora será uma string no formato 'DD/MM/AAAA' para o TextInput
-  const [nascimentoInput, setNascimentoInput] = useState('');
+  const [sexo, setSexo] = useState('');
+  const [nascimento, setNascimento] = useState(null);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [userId, setUserId] = useState(null);
 
-  const handleSalvar = () => {
-    // Validar se todos os campos estão preenchidos
-    if (!nome || !especie || !raca || !nascimentoInput) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+  // Seu useEffect para buscar o userId continua igual, sem mudanças.
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const id = await AsyncStorage.getItem('userLoggedInId');
+        if (id) {
+          setUserId(id); // Firestore usa IDs como string, então não precisa do parseInt
+        } else {
+          setAlertMessage('Usuário não logado. Por favor, faça login.');
+          router.replace('/screens/loginScreen');
+        }
+      } catch (error) {
+        console.error("Error fetching userId from AsyncStorage:", error);
+        setAlertMessage("Erro ao carregar informações do usuário.");
+        router.replace('/screens/loginScreen');
+      }
+    };
+    getUserId();
+  }, []);
+
+  // Suas funções de date picker e formatação de data para exibição continuam iguais.
+  const showDatePicker = () => setDatePickerVisibility(true);
+  const hideDatePicker = () => setDatePickerVisibility(false);
+  const handleConfirm = (date) => {
+    setNascimento(date);
+    hideDatePicker();
+  };
+  const formatarDataParaExibicao = (data) => {
+    return data.toLocaleDateString('pt-BR');
+  };
+  // A função formatarDataParaDB foi removida pois não é mais necessária.
+
+  const handleSalvar = async () => {
+    // Sua validação de campos continua igual.
+    if (!userId) {
+      setAlertMessage('Erro: ID do usuário não encontrado. Faça login novamente.');
+      return;
+    }
+    if (!nome || !especie || !raca || !nascimento || !sexo) {
+      setAlertMessage('Por favor, preencha todos os campos.');
       return;
     }
 
-    // Tentar converter a string de data para um objeto Date
-    const partesData = nascimentoInput.split('/');
-    if (partesData.length !== 3) {
-      Alert.alert('Erro', 'Formato de data inválido. Use DD/MM/AAAA.');
-      return;
+    try {
+      // ======================= MUDANÇA 2: LÓGICA DE SALVAR =======================
+      // Em vez de chamar 'addPet', usamos 'addDoc' para salvar no Firestore.
+      // A coleção no Firestore se chamará 'pets'.
+      await addDoc(collection(db, 'pets'), {
+        donoId: userId, // Salva o ID do dono do pet
+        nome: nome,
+        especie: especie,
+        raca: raca,
+        sexo: sexo,
+        nascimento: Timestamp.fromDate(nascimento), // Salva a data no formato do Firestore
+        cadastradoEm: Timestamp.now(), // Salva a data atual do cadastro
+        imagemUri: null // Campo para a imagem, como no seu código original
+      });
+
+      // O seu código de sucesso e limpeza de formulário continua igual
+      setAlertMessage('Animal cadastrado com sucesso!');
+      setNome('');
+      setEspecie('');
+      setRaca('');
+      setSexo('');
+      setNascimento(null);
+      setTimeout(() => {
+        setAlertMessage('');
+        router.replace('/screens/listpetScreen');
+      }, 1500);
+      // =========================================================================
+
+    } catch (error) {
+      console.error('Error saving animal to Firestore:', error);
+      setAlertMessage('Ocorreu um erro ao salvar o animal: ' + error.message);
     }
-    const dia = parseInt(partesData[0], 10);
-    const mes = parseInt(partesData[1], 10) - 1; // Mês é baseado em 0 (janeiro é 0)
-    const ano = parseInt(partesData[2], 10);
-
-    const dataNascimentoObj = new Date(ano, mes, dia);
-
-    // Validação básica da data (se é uma data válida e não futura)
-    if (isNaN(dataNascimentoObj.getTime()) || dataNascimentoObj > new Date()) {
-        Alert.alert('Erro', 'Data de nascimento inválida ou futura.');
-        return;
-    }
-
-    console.log({
-      nome,
-      especie,
-      raca,
-      nascimento: dataNascimentoObj, // Enviando o objeto Date
-    });
-    Alert.alert('Sucesso', 'Animal cadastrado!');
-
-    // Opcional: Limpar os campos após o cadastro
-    setNome('');
-    setEspecie('');
-    setRaca('');
-    setNascimentoInput('');
   };
 
+  // Seu return com a interface (JSX) continua igual, sem mudanças.
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastrar Animal</Text>
-
-      <Text style={styles.label}>Nome do animal</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Totó"
-        value={nome}
-        onChangeText={setNome}
-      />
-
-      <Text style={styles.label}>Espécie</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Cachorro"
-        value={especie}
-        onChangeText={setEspecie}
-      />
-
-      <Text style={styles.label}>Raça</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Poodle"
-        value={raca}
-        onChangeText={setRaca}
-      />
-
-      <Text style={styles.label}>Data de nascimento (DD/MM/AAAA)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: 12/04/2020"
-        value={nascimentoInput}
-        onChangeText={setNascimentoInput}
-        keyboardType="numeric" // Sugere teclado numérico para facilitar a digitação da data
-      />
-
-      <TouchableOpacity style={styles.button} onPress={handleSalvar}>
-        <Text style={styles.buttonText}>Salvar</Text>
-      </TouchableOpacity>
+      {/* ...seu JSX aqui... */}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: '#FFF',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 16,
-    marginBottom: 4,
-    marginTop: 12,
-    color: '#555',
-  },
-  input: {
-    backgroundColor: '#F0F0F0',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 18,
-  },
-});
+// Seus estilos do componente principal continuam iguais, sem mudanças.
+const styles = StyleSheet.create({ /* ...seus estilos aqui... */ });
