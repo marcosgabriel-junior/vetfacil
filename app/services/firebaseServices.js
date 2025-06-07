@@ -1,53 +1,120 @@
-// VETFACIL/app/services/firebaseServices.js
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { db } from './firebaseConfig';
 
-// ... (seus imports e outras funções como getPetById, getEventsByPetId)
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from './firebaseConfig'; // Ajuste o caminho se necessário
+const auth = getAuth();
 
+export const registerUserWithProfile = async (email, password, name, phone) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-// Funções getPetById e getEventsByPetId (já fornecidas anteriormente)
-// ...
+    await setDoc(doc(db, 'users', user.uid), {
+      name: name,
+      email: email,
+      phone: phone,
+      createdAt: new Date(),
+    });
 
-/**
- * Busca todos os eventos para todos os pets de um usuário específico.
- * Inclui o nome do pet em cada evento.
- * @param {string} userId O ID do usuário logado (UID do Firebase Auth).
- * @returns {Promise<Array<object>>} Uma lista consolidada de todos os eventos com nomes de pets.
- */
+    console.log("Usuário registrado e perfil salvo:", user.uid);
+    return userCredential;
+
+  } catch (error) {
+    console.error("Erro ao registrar ou salvar perfil do usuário:", error);
+    throw error;
+  }
+};
+
+export const signInUser = async (email, password) => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log("Usuário logado:", userCredential.user.uid);
+    return userCredential;
+  } catch (error) {
+    console.error("Erro ao fazer login do usuário:", error);
+    throw error;
+  }
+};
+
+export const getUserProfile = async (userId) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return { id: userSnap.id, ...userSnap.data() };
+    } else {
+      console.log("Perfil do usuário não encontrado para o UID:", userId);
+      return null;
+    }
+  } catch (error) {
+    console.error("Erro ao obter perfil do usuário:", error);
+    throw error;
+  }
+};
+
+export const getPetById = async (pet_id) => {
+  try {
+    const petRef = doc(db, 'pets', pet_id);
+    const petSnap = await getDoc(petRef);
+
+    if (petSnap.exists()) {
+      return { id: petSnap.id, ...petSnap.data() };
+    } else {
+      console.log("Nenhum documento de pet encontrado com o ID:", pet_id);
+      return null;
+    }
+  } catch (error) {
+    console.error("Erro ao buscar detalhes do pet:", error);
+    throw error;
+  }
+};
+
+export const getEventsByPetId = async (pet_id) => {
+  try {
+    const eventsColRef = collection(db, 'events');
+    const q = query(eventsColRef, where('pet_id', '==', pet_id));
+    const querySnapshot = await getDocs(q);
+    const events = [];
+    querySnapshot.forEach((doc) => {
+      events.push({ id: doc.id, ...doc.data() });
+    });
+    return events;
+  } catch (error) {
+    console.error("Erro ao buscar eventos do pet:", error);
+    throw error;
+  }
+};
+
 export const getAllEventsByUserId = async (userId) => {
   try {
     const petsRef = collection(db, 'pets');
-    // Busque todos os pets que o usuário possui
-    // Assumimos que o campo que vincula o pet ao usuário é 'donoid'
-    const userPetsQuery = query(petsRef, where('donoid', '==', userId)); 
+    const userPetsQuery = query(petsRef, where('donoid', '==', userId));
     const userPetsSnapshot = await getDocs(userPetsQuery);
 
     const petIds = [];
-    const petNames = {}; // Para mapear petId para petName
+    const petNames = {};
     userPetsSnapshot.forEach(doc => {
       petIds.push(doc.id);
-      petNames[doc.id] = doc.data().name; // Armazena o nome do pet
+      petNames[doc.id] = doc.data().name;
     });
 
     if (petIds.length === 0) {
       console.log("Nenhum pet encontrado para o usuário:", userId);
-      return []; // Retorna array vazio se não houver pets
+      return [];
     }
 
     const eventsRef = collection(db, 'events');
-    // Busque todos os eventos onde 'pet_id' está na lista de IDs dos pets do usuário
-    // O operador 'in' pode ter no máximo 10 valores
-    const eventsQuery = query(eventsRef, where('pet_id', 'in', petIds)); 
+    const eventsQuery = query(eventsRef, where('pet_id', 'in', petIds));
     const eventsSnapshot = await getDocs(eventsQuery);
 
     const events = [];
     eventsSnapshot.forEach(doc => {
       const eventData = doc.data();
-      // Adiciona o nome do pet ao objeto do evento antes de retornar
-      events.push({ 
-        id: doc.id, 
+      events.push({
+        id: doc.id,
         ...eventData,
-        pet_name: petNames[eventData.pet_id] // Busca o nome do pet
+        pet_name: petNames[eventData.pet_id]
       });
     });
 
@@ -57,4 +124,3 @@ export const getAllEventsByUserId = async (userId) => {
     throw error;
   }
 };
-//testegithub
