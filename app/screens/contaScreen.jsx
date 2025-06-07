@@ -1,21 +1,43 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../services/firebaseconfig';
+import { getAuth } from 'firebase/auth';
 
 export default function Conta() {
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        const docRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        } else {
+          console.log('Nenhum dado encontrado!');
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (!userData) {
+    console.log("Aguardando dados do usuário...");
+    return <Text style={{ padding: 20 }}>Carregando dados do usuário...</Text>;
+  }
+
   return (
     <View style={styles.container}>
-      
-      {/* Imagem de perfil */}
-      <Image source={require("../../assets/images/pessoa1.jpeg")} style={styles.foto}/>
-      
-      {/* Nome do usuário */}
-      <Text style={styles.nome}>Fulano da Silva</Text>
-      
-      {/* Espaço reservado para outros dados */}
-      <Text style={styles.email}>fulano@email.com</Text>
-      <Text style={styles.info}>Telefone: (31) 91234-5678</Text>
-
-      {/* Futuro: botão para editar perfil, logout etc. */}
-
+      <Image source={require("../../assets/images/pessoa1.jpeg")} style={styles.foto} />
+      <Text style={styles.nome}>{userData.name}</Text>
+      <Text style={styles.email}>{userData.email}</Text>
+      <Text style={styles.info}>Telefone: {userData.phone}</Text>
     </View>
   );
 }
