@@ -4,8 +4,7 @@ import { useRouter } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { db } from '../services/firebaseConfig'; // Importa a conexão com o banco de dados
-
+import { db } from '../services/firebaseconfig'; // Importa a conexão com o banco de dados
 
 export default function Pet() {
   const router = useRouter();
