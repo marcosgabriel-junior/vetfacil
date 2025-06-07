@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { db } from '../services/firebaseConfig'; // Importa a conexão com o banco de dados
 
+
 export default function Pet() {
   const router = useRouter();
   const isFocused = useIsFocused();
