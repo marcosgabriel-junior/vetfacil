@@ -1,4 +1,4 @@
-// VETFACIL/vscode/app/services/firebaseConfig.js
+// VETFACIL/vscode/app/services/firebaseconfig.js
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
