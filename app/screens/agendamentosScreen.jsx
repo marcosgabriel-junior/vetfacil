@@ -51,7 +51,7 @@ export default function Agendamentos() {
     };
     fetchUserId();
   }, []);
-
+//teste github
   useFocusEffect(
     React.useCallback(() => {
       const loadAllEvents = async () => {
