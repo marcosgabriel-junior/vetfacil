@@ -1,9 +1,3 @@
-/*Primeiro, se você não tiver o React Navigation configurado no seu projeto, você pode instalar as dependências necessárias:
-npm install @react-navigation/native @react-navigation/stack
-npm install react-native-screens react-native-safe-area-context
-E também não se esqueça de rodar o comando para instalar as dependências de navegação:
-npx pod-install
-*/
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -19,14 +13,15 @@ export default function Settings() {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/notificacoesScreen')}>
-      <Text style={styles.optionText}>🔔 Notificações</Text>
+        <Text style={styles.optionText}>🔔 Notificações</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/cadastroAnimalScreen')}>
         <Text style={styles.optionText}>📋 Cadastrar Animal</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/listpetScreen')}>
+      {/* CORREÇÃO APLICADA AQUI: O caminho foi alterado de listpetScreen para lista-animais */}
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/lista-animais')}>
         <Text style={styles.optionText}>🐾 Lista de Animais</Text>
       </TouchableOpacity>
 

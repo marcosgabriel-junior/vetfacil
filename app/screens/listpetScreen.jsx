@@ -4,11 +4,7 @@ import { useRouter } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-<<<<<<< HEAD
 import { db } from '../services/firebaseconfig'; // Importa a conexão com o banco de dados
-=======
-import { db } from '../services/firebaseconfig';
->>>>>>> 696870bf83235b9fd2c1a7cc95fb678582034b0e
 
 export default function Pet() {
   const router = useRouter();
@@ -29,7 +25,7 @@ export default function Pet() {
 
       if (userId) {
         // O campo 'donoId' foi alterado para 'donoid' aqui
-        const petsQuery = query(collection(db, 'pets'), where('donoid', '==', userId)); 
+        const petsQuery = query(collection(db, 'pets'), where('donoid', '==', userId));
         const querySnapshot = await getDocs(petsQuery);
         const petsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setPets(petsData);
@@ -54,7 +50,7 @@ export default function Pet() {
       <View style={styles.header}>
         <Text style={styles.titulo}>Meus Pets</Text>
         <TouchableOpacity onPress={() => router.push('/screens/cadastroAnimalScreen')}>
-            <Text style={styles.addIcon}>＋</Text>
+          <Text style={styles.addIcon}>＋</Text>
         </TouchableOpacity>
       </View>
 
@@ -66,8 +62,8 @@ export default function Pet() {
           pets.map(pet => (
             <TouchableOpacity key={pet.id} onPress={() => router.push(`/screens/petScreen?petId=${pet.id}`)}>
               <View style={styles.card}>
-                <Image 
-                  source={pet.image_uri ? { uri: pet.image_uri } : require("../../assets/images/Logo02.png")} 
+                <Image
+                  source={pet.image_uri ? { uri: pet.image_uri } : require("../../assets/images/Logo02.png")}
                   style={styles.fotoPet}
                 />
                 <View style={styles.infoPet}>

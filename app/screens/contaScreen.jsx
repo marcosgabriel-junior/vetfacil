@@ -2,7 +2,7 @@ import { getAuth } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { db } from '../services/firebaseConfig';
+import { db } from '../services/firebaseconfig';
 
 export default function Conta() {
   const [userData, setUserData] = useState(null);
