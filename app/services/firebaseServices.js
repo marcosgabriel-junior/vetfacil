@@ -1,6 +1,6 @@
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, doc, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
-import { db } from './firebaseconfig';
+import { db } from './firebaseConfig';
 
 const auth = getAuth();
 
