@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   icone: { width: 40, height: 40, marginRight: 12, },
   tituloCard: { fontSize: 16, fontWeight: "600", },
   subtituloCard: { fontSize: 14, color: "#6B7280", },
-  botao: { position: 'absolute', bottom: 24, backgroundColor: "#22C55E", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, width: '90%', alignItems: 'center', },
+  botao: { position: 'absolute', bottom: 100, backgroundColor: "#22C55E", paddingVertical: 14, paddingHorizontal: 24, borderRadius: 12, width: '90%', alignItems: 'center', },
   botaoTexto: { color: "white", fontWeight: "bold", fontSize: 16, },
   noEventsText: { fontSize: 16, color: "#6B7280", marginTop: 10, marginBottom: 20, textAlign: 'center', }
 });
