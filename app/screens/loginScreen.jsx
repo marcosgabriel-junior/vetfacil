@@ -1,13 +1,22 @@
-// loginScreen.jsx
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, useRouter } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '../_layout';
 
-// O componente de Alerta Customizado não precisa de mudanças
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
   return (
@@ -22,7 +31,6 @@ const CustomAlert = ({ message, onClose }) => {
   );
 };
 
-// Seus estilos do Alerta não precisam de mudanças
 const alertStyles = StyleSheet.create({
   overlay: {
     position: 'absolute',
@@ -87,81 +95,80 @@ export default function Login() {
 
     } catch (error) {
       console.error("Erro ao fazer login:", error.code, error.message);
-      // ======================= MUDANÇA PARA DEBUG =======================
-      // A linha abaixo vai mostrar o código de erro exato na tela
       setAlertMessage(`Erro do Firebase: ${error.code}`);
-      // ==================================================================
     }
   };
 
-  // O seu return com a interface (JSX) continua o mesmo.
   return (
-    <View style={styles.container}>
-      <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
-      <View style={styles.imagemCont}>
-        <Image style={styles.imagem} source={require('../../assets/images/Logo02.png')} />
-      </View>
-      <View style={styles.form}>
-        <View>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            placeholder='digite seu e-mail...'
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <Text style={styles.label}>Senha</Text>
-          <TextInput
-            placeholder='digite sua senha...'
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
+        
+        <View style={styles.imagemCont}>
+          <Image style={styles.imagem} source={require('../../assets/images/Logo02.png')} />
         </View>
-        <Pressable style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Acessar</Text>
-        </Pressable>
-        <Link href='/screens/signupScreen' style={styles.link}>
-          <Text>Ainda não tem uma conta? Cadastre-se.</Text>
-        </Link>
-      </View>
-    </View>
+
+        <View style={styles.form}>
+          <View>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              placeholder='digite seu e-mail...'
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            <Text style={styles.label}>Senha</Text>
+            <TextInput
+              placeholder='digite sua senha...'
+              style={styles.input}
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+          <Pressable style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>Acessar</Text>
+          </Pressable>
+          <Link href='/screens/signupScreen' style={styles.link}>
+            <Text>Ainda não tem uma conta? Cadastre-se.</Text>
+          </Link>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
-// Seus estilos para a tela não precisam de mudanças
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'rgb(226, 240, 217)',
   },
-  titulo: {
-    fontSize: 32,
-    textAlign: 'center',
-    marginTop: 15,
-    color: 'white',
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   imagemCont: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50,
   },
   imagem: {
-    height: 350,
-    width: 350
+    height: 300,
+    width: 300,
+    resizeMode: 'contain',
   },
   form: {
-    flex: 1,
     backgroundColor: 'rgb(255, 255, 255)',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 24,
-    paddingLeft: 14,
-    paddingRight: 14,
-    marginTop: 100,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    marginTop: 20,
   },
   label: {
     color: '#333',
@@ -196,6 +203,6 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginTop: 16,
     textAlign: 'center',
-    fontSize: 15,
-  }
+    fontSize: 15,
+  }
 });
