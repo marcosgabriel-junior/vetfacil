@@ -12,10 +12,6 @@ export default function Settings() {
         <Text style={styles.optionText}>👤 Conta</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/notificacoesScreen')}>
-        <Text style={styles.optionText}>🔔 Notificações</Text>
-      </TouchableOpacity>
-
       <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/cadastroAnimalScreen')}>
         <Text style={styles.optionText}>📋 Cadastrar Animal</Text>
       </TouchableOpacity>
