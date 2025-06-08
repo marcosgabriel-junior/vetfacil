@@ -1,24 +1,19 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './_firebaseconfig.js';
 
-/**
- * Cadastra um novo usuário e salva seus dados na coleção 'users'.
- */
+// ... (função cadastrarUsuario)
 export const cadastrarUsuario = async (nome, email, senha) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
     const user = userCredential.user;
-
     await setDoc(doc(db, 'users', user.uid), {
       nome: nome,
       email: email,
       uid: user.uid,
       dataCadastro: new Date().toISOString(),
     });
-
     return { success: true };
-
   } catch (error) {
     let friendlyMessage = 'Ocorreu um erro ao realizar o cadastro.';
     switch (error.code) {
@@ -38,9 +33,8 @@ export const cadastrarUsuario = async (nome, email, senha) => {
   }
 };
 
-/**
- * Busca os eventos de um único pet específico.
- */
+
+// ... (função getEventsByPetId)
 export const getEventsByPetId = async (petId) => {
     if (!petId) return [];
     try {
@@ -57,44 +51,28 @@ export const getEventsByPetId = async (petId) => {
     }
   };
 
-
-/**
- * FUNÇÃO CORRIGIDA
- * Busca todos os eventos de todos os pets de um usuário.
- */
+// ... (função getAllEventsByUserId)
 export const getAllEventsByUserId = async (userId) => {
   if (!userId) {
     console.log("getAllEventsByUserId: userId não fornecido.");
     return [];
   }
-
   try {
-    // 1. Encontra todos os pets que pertencem ao usuário logado.
     const petsRef = collection(db, 'pets');
     const petsQuery = query(petsRef, where("donoid", "==", userId));
     const petsSnapshot = await getDocs(petsQuery);
-
     if (petsSnapshot.empty) {
-      console.log('Nenhum pet encontrado para este usuário.');
       return [];
     }
-
-    // Cria um mapa para associar o ID do pet ao seu nome.
     const petMap = new Map();
     petsSnapshot.docs.forEach(doc => {
       petMap.set(doc.id, doc.data().name);
     });
     const petIds = Array.from(petMap.keys());
-
-    // 2. Busca todos os eventos onde o 'pet_id' corresponde a um dos pets encontrados.
-    // A consulta 'in' é limitada a 30 itens. Para mais pets, seria necessária uma abordagem diferente.
     if (petIds.length === 0) return [];
-    
     const eventsRef = collection(db, 'events');
     const eventsQuery = query(eventsRef, where("pet_id", "in", petIds));
     const eventsSnapshot = await getDocs(eventsQuery);
-
-    // 3. Mapeia os resultados e adiciona o nome do pet a cada evento.
     const allEvents = eventsSnapshot.docs.map(eventDoc => {
       const eventData = eventDoc.data();
       return {
@@ -103,11 +81,40 @@ export const getAllEventsByUserId = async (userId) => {
         pet_name: petMap.get(eventData.pet_id) || 'Pet Desconhecido'
       };
     });
-
     return allEvents;
-
   } catch (error) {
     console.error("Erro ao buscar todos os eventos do usuário:", error);
     return [];
+  }
+};
+
+export const deletePet = async (petId) => {
+  if (!petId) {
+    console.error("deletePet: petId não fornecido.");
+    return { success: false, error: "ID do pet não fornecido." };
+  }
+
+  try {
+    // 1. Excluir todos os eventos associados ao pet.
+    const eventsQuery = query(collection(db, "events"), where("pet_id", "==", petId));
+    const eventsSnapshot = await getDocs(eventsQuery);
+    
+    // Deleta cada evento em um lote para otimizar.
+    const deletePromises = [];
+    eventsSnapshot.forEach((eventDoc) => {
+      deletePromises.push(deleteDoc(eventDoc.ref));
+    });
+    await Promise.all(deletePromises);
+    console.log(`Eventos associados ao pet ${petId} excluídos.`);
+
+    // 2. Excluir o documento do pet.
+    await deleteDoc(doc(db, 'pets', petId));
+    console.log(`Pet ${petId} excluído com sucesso.`);
+
+    return { success: true };
+
+  } catch (error) {
+    console.error("Erro ao excluir o pet:", error);
+    return { success: false, error: "Ocorreu um erro ao excluir o pet." };
   }
 };
