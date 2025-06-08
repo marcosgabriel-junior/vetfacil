@@ -4,11 +4,10 @@ import { useRouter } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// CORREÇÃO: Importa a nova função de exclusão
 import { db } from '../services/_firebaseconfig';
 import { deletePet } from '../services/_firebaseServices';
 
-// NOVO COMPONENTE: Modal de confirmação personalizado
+//  Modal de confirmação personalizado
 const ConfirmationModal = ({ visible, petName, onConfirm, onCancel }) => {
   return (
     <Modal

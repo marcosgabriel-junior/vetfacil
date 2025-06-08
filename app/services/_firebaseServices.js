@@ -1,8 +1,8 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+//oi balde
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth'; // Adicionado deleteUser
 import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './_firebaseconfig.js';
-
-// ... (função cadastrarUsuario)
 export const cadastrarUsuario = async (nome, email, senha) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
@@ -33,8 +33,7 @@ export const cadastrarUsuario = async (nome, email, senha) => {
   }
 };
 
-
-// ... (função getEventsByPetId)
+// ... (as outras funções de serviço como getEventsByPetId, getAllEventsByUserId, deletePet permanecem aqui) ...
 export const getEventsByPetId = async (petId) => {
     if (!petId) return [];
     try {
@@ -50,11 +49,8 @@ export const getEventsByPetId = async (petId) => {
       return [];
     }
   };
-
-// ... (função getAllEventsByUserId)
 export const getAllEventsByUserId = async (userId) => {
   if (!userId) {
-    console.log("getAllEventsByUserId: userId não fornecido.");
     return [];
   }
   try {
@@ -87,34 +83,67 @@ export const getAllEventsByUserId = async (userId) => {
     return [];
   }
 };
-
 export const deletePet = async (petId) => {
   if (!petId) {
-    console.error("deletePet: petId não fornecido.");
     return { success: false, error: "ID do pet não fornecido." };
   }
-
   try {
-    // 1. Excluir todos os eventos associados ao pet.
     const eventsQuery = query(collection(db, "events"), where("pet_id", "==", petId));
     const eventsSnapshot = await getDocs(eventsQuery);
-    
-    // Deleta cada evento em um lote para otimizar.
     const deletePromises = [];
     eventsSnapshot.forEach((eventDoc) => {
       deletePromises.push(deleteDoc(eventDoc.ref));
     });
     await Promise.all(deletePromises);
-    console.log(`Eventos associados ao pet ${petId} excluídos.`);
-
-    // 2. Excluir o documento do pet.
     await deleteDoc(doc(db, 'pets', petId));
-    console.log(`Pet ${petId} excluído com sucesso.`);
-
     return { success: true };
-
   } catch (error) {
     console.error("Erro ao excluir o pet:", error);
     return { success: false, error: "Ocorreu um erro ao excluir o pet." };
+  }
+};
+export const deleteUserAccount = async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    return { success: false, error: "Nenhum usuário logado para excluir." };
+  }
+  const userId = user.uid;
+
+  try {
+    // 1. Buscar e deletar todos os pets e eventos associados
+    const petsQuery = query(collection(db, 'pets'), where("donoid", "==", userId));
+    const petsSnapshot = await getDocs(petsQuery);
+    const petIds = petsSnapshot.docs.map(doc => doc.id);
+
+    if (petIds.length > 0) {
+      // Deletar eventos
+      const eventsQuery = query(collection(db, "events"), where("pet_id", "in", petIds));
+      const eventsSnapshot = await getDocs(eventsQuery);
+      const deleteEventPromises = eventsSnapshot.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deleteEventPromises);
+    }
+    
+    // Deletar pets
+    const deletePetPromises = petsSnapshot.docs.map(d => deleteDoc(d.ref));
+    await Promise.all(deletePetPromises);
+
+    // 2. Deletar o documento do usuário no Firestore
+    await deleteDoc(doc(db, 'users', userId));
+
+    // 3. Deletar o usuário da Authentication
+    // Esta operação pode falhar se o login não for recente.
+    await deleteUser(user);
+
+    // 4. Limpar dados locais
+    await AsyncStorage.removeItem('userLoggedInId');
+
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao excluir conta:", error);
+    let friendlyMessage = "Ocorreu um erro ao excluir sua conta.";
+    if (error.code === 'auth/requires-recent-login') {
+      friendlyMessage = "Esta é uma operação sensível. Por favor, faça login novamente antes de tentar excluir sua conta.";
+    }
+    return { success: false, error: friendlyMessage };
   }
 };

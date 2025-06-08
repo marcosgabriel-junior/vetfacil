@@ -19,3 +19,4 @@ const app = initializeApp(firebaseConfig);
 // Exportamos o auth e o db para serem usados em outros arquivos.
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+//a parte do backand foi feita toda escutando jorge e mateus e marilia mendonça 
