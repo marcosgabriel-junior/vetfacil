@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { addEvent } from '../index'; // Importa a função do seu DB
 
+
 // Componente de Modal Customizada para substituir Alert
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
@@ -66,7 +67,8 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
   const [eventType, setEventType] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [date, setData] = useState(new Date());
+  const [date, setData] = useState('', useState(''));
+  
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
@@ -142,6 +144,8 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
     }
   };
 
+  
+
   return (
     <View style={styles.container}>
       <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
@@ -175,11 +179,22 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
         numberOfLines={3}
       />
 
+      <TextInput
+        style={styles.input}
+        placeholder="Escolher Data e Hora:"
+        value={date ? date.toLocaleString('pt-BR') : ''}
+        onFocus={() => setShowDatePicker(true)}
+        onChangeText={setData}
+        multiline
+        numberOfLines={3}
+      />
+
       <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
         <Text style={styles.dateButtonText}>
-          Escolher Data e Hora: {date.toLocaleDateString('pt-BR')} {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+          Data e Hora de hoje: {Date(date)}
         </Text>
       </TouchableOpacity>
+
 
       {showDatePicker && (
         <DateTimePicker
