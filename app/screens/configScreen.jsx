@@ -17,7 +17,7 @@ export default function Settings() {
       </TouchableOpacity>
 
       {/* CORREÇÃO APLICADA AQUI: O caminho foi alterado de listpetScreen para lista-animais */}
-      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/lista-animais')}>
+      <TouchableOpacity style={styles.option} onPress={() => router.push('/screens/petScreen')}>
         <Text style={styles.optionText}>🐾 Lista de Animais</Text>
       </TouchableOpacity>
 
