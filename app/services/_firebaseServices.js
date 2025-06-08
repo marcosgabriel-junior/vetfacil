@@ -1,14 +1,15 @@
-//oi balde
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth'; // Adicionado deleteUser
+import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { auth, db } from './_firebaseconfig.js';
+
+// ... (suas funções existentes como cadastrarUsuario, getEventsByPetId, etc.)
 export const cadastrarUsuario = async (nome, email, senha) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
     const user = userCredential.user;
     await setDoc(doc(db, 'users', user.uid), {
-      nome: nome,
+      name: nome,
       email: email,
       uid: user.uid,
       dataCadastro: new Date().toISOString(),
@@ -32,8 +33,6 @@ export const cadastrarUsuario = async (nome, email, senha) => {
     return { success: false, error: friendlyMessage };
   }
 };
-
-// ... (as outras funções de serviço como getEventsByPetId, getAllEventsByUserId, deletePet permanecem aqui) ...
 export const getEventsByPetId = async (petId) => {
     if (!petId) return [];
     try {
@@ -108,35 +107,21 @@ export const deleteUserAccount = async () => {
     return { success: false, error: "Nenhum usuário logado para excluir." };
   }
   const userId = user.uid;
-
   try {
-    // 1. Buscar e deletar todos os pets e eventos associados
     const petsQuery = query(collection(db, 'pets'), where("donoid", "==", userId));
     const petsSnapshot = await getDocs(petsQuery);
     const petIds = petsSnapshot.docs.map(doc => doc.id);
-
     if (petIds.length > 0) {
-      // Deletar eventos
       const eventsQuery = query(collection(db, "events"), where("pet_id", "in", petIds));
       const eventsSnapshot = await getDocs(eventsQuery);
       const deleteEventPromises = eventsSnapshot.docs.map(d => deleteDoc(d.ref));
       await Promise.all(deleteEventPromises);
     }
-    
-    // Deletar pets
     const deletePetPromises = petsSnapshot.docs.map(d => deleteDoc(d.ref));
     await Promise.all(deletePetPromises);
-
-    // 2. Deletar o documento do usuário no Firestore
     await deleteDoc(doc(db, 'users', userId));
-
-    // 3. Deletar o usuário da Authentication
-    // Esta operação pode falhar se o login não for recente.
     await deleteUser(user);
-
-    // 4. Limpar dados locais
     await AsyncStorage.removeItem('userLoggedInId');
-
     return { success: true };
   } catch (error) {
     console.error("Erro ao excluir conta:", error);
@@ -145,5 +130,24 @@ export const deleteUserAccount = async () => {
       friendlyMessage = "Esta é uma operação sensível. Por favor, faça login novamente antes de tentar excluir sua conta.";
     }
     return { success: false, error: friendlyMessage };
+  }
+};
+
+
+/**
+ * NOVA FUNÇÃO
+ * Exclui um agendamento específico do Firestore.
+ */
+export const deleteEvent = async (eventId) => {
+  if (!eventId) {
+    console.error("deleteEvent: eventId não fornecido.");
+    return { success: false, error: "ID do agendamento não fornecido." };
+  }
+  try {
+    await deleteDoc(doc(db, "events", eventId));
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao excluir o evento:", error);
+    return { success: false, error: "Ocorreu um erro ao excluir o agendamento." };
   }
 };
