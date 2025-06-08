@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, ScrollView, StyleSheet, Text, View } from "react-native"; // Adicionado ScrollView
-import { getAllEventsByUserId } from '../services/firebaseServices'; // <--- Caminho ajustado
+import { getAllEventsByUserId } from '../services/_firebaseServices'; // <--- Caminho ajustado
 
 export default function Agendamentos() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);

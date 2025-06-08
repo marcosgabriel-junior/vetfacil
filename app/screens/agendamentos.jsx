@@ -1,17 +1,16 @@
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from "react-native";
-import { getEventsByPetId } from '../services/firebaseServices'; // Ajuste o caminho se necessário
+import { getEventsByPetId } from '../services/_firebaseServices.js';
 
 export default function Agendamentos() {
   const params = useLocalSearchParams();
-  const petId = params?.petId; // Continua recebendo como petId
+  const petId = params?.petId;
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Mapeia os tipos de evento para os ícones
   const getIconForEventType = (eventType) => {
     const type = eventType ? eventType.toLowerCase() : '';
     if (type.includes('vacina') || type.includes('veterinário') || type.includes('consulta')) {
@@ -23,7 +22,6 @@ export default function Agendamentos() {
     return require('../../assets/images/seringa.png'); // Ícone padrão
   };
 
-  // Função para formatar a data
   const formatDate = (firestoreTimestamp) => {
     if (!firestoreTimestamp) return 'Data desconhecida';
     const date = firestoreTimestamp.toDate ? firestoreTimestamp.toDate() : new Date(firestoreTimestamp);
@@ -40,7 +38,7 @@ export default function Agendamentos() {
           return;
         }
         try {
-          const events = await getEventsByPetId(petId); // Passa petId, que será mapeado para pet_id na função de serviço
+          const events = await getEventsByPetId(petId);
           const now = new Date();
           now.setHours(0, 0, 0, 0);
 
@@ -58,16 +56,9 @@ export default function Agendamentos() {
             }
           });
 
-          upcoming.sort((a, b) => {
-            const dateA = a.event_date?.toDate ? a.event_date.toDate() : new Date(a.event_date);
-            const dateB = b.event_date?.toDate ? b.event_date.toDate() : new Date(b.event_date);
-            return dateA - dateB;
-          });
-          past.sort((a, b) => {
-            const dateA = a.event_date?.toDate ? a.event_date.toDate() : new Date(a.event_date);
-            const dateB = b.event_date?.toDate ? b.event_date.toDate() : new Date(b.event_date);
-            return dateB - dateA;
-          });
+          // Ordena os eventos
+          upcoming.sort((a, b) => (a.event_date?.toDate() || 0) - (b.event_date?.toDate() || 0));
+          past.sort((a, b) => (b.event_date?.toDate() || 0) - (a.event_date?.toDate() || 0));
 
           setUpcomingEvents(upcoming);
           setPastEvents(past);

@@ -3,12 +3,12 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { db } from '../services/firebaseconfig';
+import { db } from '../services/_firebaseconfig';
 
 export default function PetScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const petId = params?.petId; // Obtém o petId dos parâmetros da rota (Firestore ID é string)
+  const petId = params?.petId;
 
   const [petDetails, setPetDetails] = useState(null);
   const [petEvents, setPetEvents] = useState([]);
@@ -27,7 +27,6 @@ export default function PetScreen() {
     return `${age} anos`;
   };
 
-  // Mapeia os tipos de evento para os ícones
   const getIconForEventType = (eventType) => {
     const type = eventType ? eventType.toLowerCase() : '';
     if (type.includes('vacina') || type.includes('veterinário') || type.includes('consulta')) {
@@ -36,10 +35,9 @@ export default function PetScreen() {
     if (type.includes('tosa') || type.includes('banho')) {
       return require("../../assets/images/tesouras.png");
     }
-    return require("../../assets/images/seringa.png"); // Ícone padrão se nenhum for correspondido
+    return require("../../assets/images/seringa.png");
   };
 
-  // Funções para buscar dados do Firestore (podem ser movidas para um arquivo de serviços/DB)
   const getPetByIdFirestore = async (id) => {
     try {
       const petRef = doc(db, 'pets', id);
@@ -47,7 +45,6 @@ export default function PetScreen() {
       if (petSnap.exists()) {
         return { id: petSnap.id, ...petSnap.data() };
       } else {
-        console.log("No such document (pet)!");
         return null;
       }
     } catch (error) {
@@ -56,10 +53,9 @@ export default function PetScreen() {
     }
   };
 
-  const getEventsByPetIdFirestore = async (id) => { // id continua sendo o ID do documento do pet
+  const getEventsByPetIdFirestore = async (id) => {
     try {
       const eventsColRef = collection(db, 'events');
-      // O campo na query é 'pet_id' (com underscore), conforme a sua estrutura de DB
       const q = query(eventsColRef, where('pet_id', '==', id)); 
       const querySnapshot = await getDocs(q);
       const events = [];
@@ -94,7 +90,7 @@ export default function PetScreen() {
             return;
           }
 
-          const events = await getEventsByPetIdFirestore(petId); // Chama com petId
+          const events = await getEventsByPetIdFirestore(petId);
           setPetEvents(events);
 
         } catch (error) {
@@ -105,7 +101,6 @@ export default function PetScreen() {
         }
       };
       loadPetData();
-      return () => {};
     }, [petId])
   );
 
@@ -137,7 +132,11 @@ export default function PetScreen() {
         <Text style={styles.descricaoPet}>
           {petDetails.breed || 'Raça desconhecida'}
           {"\n"}
-          {petDetails.sex || 'Gênero desconhecido'}, {getAge(petDetails.date_of_birth)}
+          {/* CORREÇÃO 1: Lendo o campo 'gender' em vez de 'sex' */}
+          {petDetails.gender || 'Gênero desconhecido'}, 
+          
+          {/* CORREÇÃO 2: Lendo o campo 'birthdate' em vez de 'date_of_birth' */}
+          {getAge(petDetails.birthdate)}
         </Text>
         <Text style={styles.upcoming}>Próximos Eventos</Text>
         {petEvents.length === 0 ? (

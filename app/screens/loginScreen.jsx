@@ -14,8 +14,10 @@ import {
   View
 } from "react-native";
 
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { app } from '../_layout';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+// CORREÇÃO: Importamos 'auth' diretamente do nosso arquivo de configuração,
+// o que é mais consistente com o resto do projeto.
+import { auth } from '../services/_firebaseconfig.js';
 
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
@@ -31,40 +33,6 @@ const CustomAlert = ({ message, onClose }) => {
   );
 };
 
-const alertStyles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  container: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
-    maxWidth: 300,
-  },
-  message: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#22C55E',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-});
-
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -78,24 +46,27 @@ export default function Login() {
     }
 
     try {
-      const auth = getAuth(app);
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
       const user = userCredential.user;
 
-      if (user) {
-        await AsyncStorage.setItem('userLoggedInId', user.uid);
-        
-        setAlertMessage("Login realizado com sucesso!");
-        setTimeout(() => {
-          setAlertMessage('');
-          router.replace('/screens/listpetScreen');
-        }, 1500);
-      }
+      // Salva o ID do usuário localmente para ser usado em outras telas
+      await AsyncStorage.setItem('userLoggedInId', user.uid);
+      
+      // Feedback para o usuário e redirecionamento
+      setAlertMessage("Login realizado com sucesso!");
+      setTimeout(() => {
+        setAlertMessage('');
+        router.replace('/screens/listpetScreen');
+      }, 1500);
 
     } catch (error) {
-      console.error("Erro ao fazer login:", error.code, error.message);
-      setAlertMessage(`Erro do Firebase: ${error.code}`);
+      console.error("Erro ao fazer login:", error.code);
+      // Melhora a mensagem de erro para o usuário
+      let friendlyMessage = 'Ocorreu um erro ao tentar fazer login.';
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        friendlyMessage = 'E-mail ou senha incorretos.';
+      }
+      setAlertMessage(friendlyMessage);
     }
   };
 
@@ -205,6 +176,40 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginTop: 16,
     textAlign: 'center',
-    fontSize: 15,
-  }
+    fontSize: 15,
+  }
+});
+
+const alertStyles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  container: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '80%',
+    maxWidth: 300,
+  },
+  message: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  button: {
+    backgroundColor: '#22C55E',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
 });

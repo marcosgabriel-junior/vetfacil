@@ -1,9 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, Button, TouchableOpacity, View } from 'react-native';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { db } from '../services/firebaseconfig';
+import { useEffect, useState } from 'react';
+import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+// CORREÇÃO: A importação agora usa o nome de arquivo correto com "_" no início
+// e a extensão .js para garantir que o módulo seja resolvido.
+import { db } from '../services/_firebaseconfig.js';
 
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
@@ -25,7 +28,7 @@ export default function CadastroAnimal() {
   const [especie, setEspecie] = useState('');
   const [raca, setRaca] = useState('');
   const [sexo, setSexo] = useState('');
-  const [nascimento, setNascimento] = useState(''); // agora como texto
+  const [nascimento, setNascimento] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
   const [userId, setUserId] = useState(null);
 
@@ -46,6 +49,7 @@ export default function CadastroAnimal() {
     const partes = dataStr.split('/');
     if (partes.length !== 3) return null;
     const [dia, mes, ano] = partes;
+    // Formato AAAA-MM-DD para o construtor da data ser mais confiável
     const data = new Date(`${ano}-${mes}-${dia}`);
     return isNaN(data.getTime()) ? null : data;
   };
@@ -89,7 +93,7 @@ export default function CadastroAnimal() {
       }, 1500);
     } catch (error) {
       console.error("Erro ao salvar o pet:", error);
-      setAlertMessage("Erro ao salvar o pet.");
+      setAlertMessage("Erro ao salvar o pet. Verifique suas permissões no Firestore.");
     }
   };
 
