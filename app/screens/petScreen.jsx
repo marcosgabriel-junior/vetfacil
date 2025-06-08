@@ -1,9 +1,12 @@
-// petScreen.jsx
+import { FontAwesome } from '@expo/vector-icons'; // Importa ícones
+import * as ImagePicker from 'expo-image-picker'; // Importa o seletor de imagens
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
 import { db } from '../services/_firebaseconfig';
+import { updatePetImage } from '../services/_firebaseServices.js'; // Importa a nova função
 
 export default function PetScreen() {
   const router = useRouter();
@@ -14,7 +17,43 @@ export default function PetScreen() {
   const [petEvents, setPetEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Função para calcular a idade
+  // Função para lidar com a seleção de foto
+  const handleChoosePhoto = async () => {
+    // 1. Pedir permissão para acessar a galeria
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Precisamos de permissão para acessar suas fotos.');
+      return;
+    }
+
+    // 2. Abrir a galeria de imagens
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1], // Força uma imagem quadrada
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const imageUrl = result.assets[0].uri;
+      
+      // 3. Salvar a nova URI no Firestore e atualizar a tela
+      setLoading(true);
+      const updateResult = await updatePetImage(petId, imageUrl);
+      setLoading(false);
+
+      if (updateResult.success) {
+        setPetDetails(prevDetails => ({
+          ...prevDetails,
+          image_uri: imageUrl
+        }));
+        Alert.alert('Sucesso!', 'A foto do pet foi atualizada.');
+      } else {
+        Alert.alert('Erro', updateResult.error);
+      }
+    }
+  };
+
   const getAge = (dateOfBirth) => {
     if (!dateOfBirth) return "Idade desconhecida";
     const birthDateValue = dateOfBirth.toDate ? dateOfBirth.toDate() : new Date(dateOfBirth);
@@ -42,14 +81,9 @@ export default function PetScreen() {
     try {
       const petRef = doc(db, 'pets', id);
       const petSnap = await getDoc(petRef);
-      if (petSnap.exists()) {
-        return { id: petSnap.id, ...petSnap.data() };
-      } else {
-        return null;
-      }
+      return petSnap.exists() ? { id: petSnap.id, ...petSnap.data() } : null;
     } catch (error) {
-      console.error("Error getting pet document:", error);
-      throw error;
+      console.error("Error getting pet document:", error); throw error;
     }
   };
 
@@ -58,43 +92,32 @@ export default function PetScreen() {
       const eventsColRef = collection(db, 'events');
       const q = query(eventsColRef, where('pet_id', '==', id)); 
       const querySnapshot = await getDocs(q);
-      const events = [];
-      querySnapshot.forEach((doc) => {
-        events.push({ id: doc.id, ...doc.data() });
-      });
-      return events;
+      return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
-      console.error("Error getting events by pet ID:", error);
-      throw error;
+      console.error("Error getting events by pet ID:", error); throw error;
     }
   };
 
   useFocusEffect(
     React.useCallback(() => {
       const loadPetData = async () => {
-        setLoading(true);
         if (!petId) {
           Alert.alert("Erro", "ID do pet não fornecido.");
           router.replace('/screens/listpetScreen');
-          setLoading(false);
           return;
         }
+        setLoading(true);
         try {
           const details = await getPetByIdFirestore(petId); 
           if (details) {
             setPetDetails(details);
+            const events = await getEventsByPetIdFirestore(petId);
+            setPetEvents(events);
           } else {
             Alert.alert("Erro", "Pet não encontrado.");
             router.replace('/screens/listpetScreen');
-            setLoading(false);
-            return;
           }
-
-          const events = await getEventsByPetIdFirestore(petId);
-          setPetEvents(events);
-
         } catch (error) {
-          console.error("Erro ao carregar dados do pet:", error);
           Alert.alert("Erro", "Não foi possível carregar os dados do pet.");
         } finally {
           setLoading(false);
@@ -106,16 +129,15 @@ export default function PetScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={[styles.container, { justifyContent: 'center' }]}>
         <ActivityIndicator size="large" color="#22C55E" />
-        <Text style={{marginTop: 10}}>Carregando informações do pet...</Text>
       </View>
     );
   }
 
   if (!petDetails) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <View style={[styles.container, { justifyContent: 'center' }]}>
         <Text>Não foi possível carregar os detalhes do pet.</Text>
       </View>
     );
@@ -124,19 +146,22 @@ export default function PetScreen() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={{ alignItems: 'center', paddingBottom: 80 }}>
-        <Image 
-          source={petDetails.image_uri ? { uri: petDetails.image_uri } : require("../../assets/images/dog1.jpeg")} 
-          style={styles.fotoPet} 
-        />
+        {/* Container da imagem com o botão de editar */}
+        <View style={styles.imageContainer}>
+          <Image 
+            source={petDetails.image_uri ? { uri: petDetails.image_uri } : require("../../assets/images/dog1.jpeg")} 
+            style={styles.fotoPet} 
+          />
+          <TouchableOpacity style={styles.editIcon} onPress={handleChoosePhoto}>
+            <FontAwesome name="camera" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.nomePet}>{petDetails.name}</Text>
         <Text style={styles.descricaoPet}>
           {petDetails.breed || 'Raça desconhecida'}
           {"\n"}
-          {/* CORREÇÃO 1: Lendo o campo 'gender' em vez de 'sex' */}
-          {petDetails.gender || 'Gênero desconhecido'}, 
-          
-          {/* CORREÇÃO 2: Lendo o campo 'birthdate' em vez de 'date_of_birth' */}
-          {getAge(petDetails.birthdate)}
+          {petDetails.gender || 'Gênero desconhecido'}, {getAge(petDetails.birthdate)}
         </Text>
         <Text style={styles.upcoming}>Próximos Eventos</Text>
         {petEvents.length === 0 ? (
@@ -170,7 +195,21 @@ export default function PetScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: "#FFFFFF", alignItems: "center", },
-  fotoPet: { width: 190, height: 190, borderRadius: 90, marginVertical: 16, },
+  // Estilo para o container da imagem
+  imageContainer: {
+    position: 'relative', // Necessário para posicionar o ícone sobre a imagem
+    marginBottom: 16,
+  },
+  fotoPet: { width: 190, height: 190, borderRadius: 95, }, // Deixa o raio um pouco maior para um círculo perfeito
+  // Estilo para o ícone de editar
+  editIcon: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 20, // Círculo perfeito
+  },
   nomePet: { fontSize: 22, fontWeight: "700", textAlign: "center", },
   descricaoPet: { fontSize: 14, color: "green", textAlign: "center", marginBottom: 24, },
   upcoming: { alignSelf: "flex-start", fontSize: 16, fontWeight: "bold", marginBottom: 12, },

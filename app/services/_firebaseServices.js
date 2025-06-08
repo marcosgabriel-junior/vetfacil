@@ -1,9 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore'; // Adicionado updateDoc
 import { auth, db } from './_firebaseconfig.js';
 
-// ... (suas funções existentes como cadastrarUsuario, getEventsByPetId, etc.)
+// ... (suas funções existentes como cadastrarUsuario, etc.)
 export const cadastrarUsuario = async (nome, email, senha) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
@@ -132,15 +132,8 @@ export const deleteUserAccount = async () => {
     return { success: false, error: friendlyMessage };
   }
 };
-
-
-/**
- * NOVA FUNÇÃO
- * Exclui um agendamento específico do Firestore.
- */
 export const deleteEvent = async (eventId) => {
   if (!eventId) {
-    console.error("deleteEvent: eventId não fornecido.");
     return { success: false, error: "ID do agendamento não fornecido." };
   }
   try {
@@ -149,5 +142,41 @@ export const deleteEvent = async (eventId) => {
   } catch (error) {
     console.error("Erro ao excluir o evento:", error);
     return { success: false, error: "Ocorreu um erro ao excluir o agendamento." };
+  }
+};
+export const updatePetImage = async (petId, imageUrl) => {
+  if (!petId) {
+    return { success: false, error: "ID do pet não fornecido." };
+  }
+  try {
+    const petRef = doc(db, 'pets', petId);
+    await updateDoc(petRef, {
+      image_uri: imageUrl
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao atualizar a imagem do pet:", error);
+    return { success: false, error: "Ocorreu um erro ao salvar a imagem." };
+  }
+};
+
+/**
+ * NOVA FUNÇÃO
+ * Atualiza a URL da foto de perfil de um usuário no Firestore.
+ */
+export const updateUserProfileImage = async (userId, imageUrl) => {
+  if (!userId) {
+    return { success: false, error: "ID do usuário não fornecido." };
+  }
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      photoURL: imageUrl // Campo para a foto do usuário
+    });
+    console.log(`Imagem do usuário ${userId} atualizada.`);
+    return { success: true };
+  } catch (error) {
+    console.error("Erro ao atualizar a foto do perfil:", error);
+    return { success: false, error: "Ocorreu um erro ao salvar a foto." };
   }
 };

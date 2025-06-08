@@ -1,12 +1,13 @@
+import { FontAwesome } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-// https://www.youtube.com/watch?v=ZHwVBirqD2s
 import { auth, db } from '../services/_firebaseconfig.js';
-import { deleteUserAccount } from '../services/_firebaseServices.js';
+import { deleteUserAccount, updateUserProfileImage } from '../services/_firebaseServices.js';
 
 const ConfirmationModal = ({ visible, onConfirm, onCancel }) => {
   return (
@@ -56,6 +57,40 @@ export default function Conta() {
     return () => unsubscribe();
   }, []);
 
+  const handleChoosePhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Precisamos de permissão para acessar suas fotos.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled && auth.currentUser) {
+      const imageUrl = result.assets[0].uri;
+      const userId = auth.currentUser.uid;
+      
+      setLoading(true);
+      const updateResult = await updateUserProfileImage(userId, imageUrl);
+      setLoading(false);
+
+      if (updateResult.success) {
+        setUserData(prevDetails => ({
+          ...prevDetails,
+          photoURL: imageUrl
+        }));
+        Alert.alert('Sucesso!', 'Sua foto de perfil foi atualizada.');
+      } else {
+        Alert.alert('Erro', updateResult.error);
+      }
+    }
+  };
+
   const handleConfirmDelete = async () => {
     setIsDeleteModalVisible(false);
     const result = await deleteUserAccount();
@@ -88,10 +123,16 @@ export default function Conta() {
       />
 
       <View style={styles.mainContent}>
-        <Image 
-          source={require("../../assets/images/pessoa1.jpeg")} 
-          style={styles.foto} 
-        />
+        <View style={styles.imageContainer}>
+          <Image 
+            source={userData.photoURL ? { uri: userData.photoURL } : require("../../assets/images/pessoa1.jpeg")} 
+            style={styles.foto} 
+          />
+          <TouchableOpacity style={styles.editIcon} onPress={handleChoosePhoto}>
+            <FontAwesome name="camera" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
+
         <Text style={styles.nome}>{userData.name || 'Nome não informado'}</Text>
         <Text style={styles.email}>{userData.email}</Text>
         {userData.phone && <Text style={styles.info}>Telefone: {userData.phone}</Text>}
@@ -123,13 +164,24 @@ const styles = StyleSheet.create({
   mainContent: {
     alignItems: 'center',
   },
+  imageContainer: {
+    position: 'relative',
+    marginBottom: 20,
+  },
   foto: {
     width: 160,
     height: 160,
     borderRadius: 80,
-    marginBottom: 20,
     borderWidth: 3,
     borderColor: '#ccc',
+  },
+  editIcon: {
+    position: 'absolute',
+    bottom: 5,
+    right: 5,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 20,
   },
   nome: {
     fontSize: 22,
