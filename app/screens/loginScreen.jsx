@@ -134,8 +134,10 @@ export default function Login() {
           <Pressable style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Acessar</Text>
           </Pressable>
-          <Link href='/screens/signupScreen' style={styles.link}>
-            <Text>Ainda não tem uma conta? Cadastre-se.</Text>
+          <Link href="/screens/cadastroScreen" asChild>
+           <TouchableOpacity>
+             <Text style={styles.link}>Ainda não tem uma conta? Cadastre-se.</Text>
+           </TouchableOpacity>
           </Link>
         </View>
       </ScrollView>
