@@ -1,18 +1,10 @@
-// cadastroAnimalScreen.jsx
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-// ======================= MUDANÇA 1: NOVOS IMPORTS =======================
-// Importar a conexão 'db' e as funções do Firestore que vamos usar
+import { StyleSheet, Text, TextInput, Button, TouchableOpacity, View } from 'react-native';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
-import { db } from '../_layout';
-// A linha "import { addPet } from '../index';" foi REMOVIDA
-// ======================================================================
+import { db } from '../services/firebaseconfig';
 
-// O seu componente CustomAlert continua igual, sem mudanças.
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
   return (
@@ -27,104 +19,148 @@ const CustomAlert = ({ message, onClose }) => {
   );
 };
 
-// Seus estilos do CustomAlert continuam iguais, sem mudanças.
-const alertStyles = StyleSheet.create({ /* ...seus estilos aqui... */ });
-
 export default function CadastroAnimal() {
   const router = useRouter();
   const [nome, setNome] = useState('');
   const [especie, setEspecie] = useState('');
   const [raca, setRaca] = useState('');
   const [sexo, setSexo] = useState('');
-  const [nascimento, setNascimento] = useState(null);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [nascimento, setNascimento] = useState(''); // agora como texto
   const [alertMessage, setAlertMessage] = useState('');
   const [userId, setUserId] = useState(null);
 
-  // Seu useEffect para buscar o userId continua igual, sem mudanças.
   useEffect(() => {
     const getUserId = async () => {
-      try {
-        const id = await AsyncStorage.getItem('userLoggedInId');
-        if (id) {
-          setUserId(id); // Firestore usa IDs como string, então não precisa do parseInt
-        } else {
-          setAlertMessage('Usuário não logado. Por favor, faça login.');
-          router.replace('/screens/loginScreen');
-        }
-      } catch (error) {
-        console.error("Error fetching userId from AsyncStorage:", error);
-        setAlertMessage("Erro ao carregar informações do usuário.");
+      const id = await AsyncStorage.getItem('userLoggedInId');
+      if (id) {
+        setUserId(id);
+      } else {
+        setAlertMessage('Usuário não logado.');
         router.replace('/screens/loginScreen');
       }
     };
     getUserId();
   }, []);
 
-  // Suas funções de date picker e formatação de data para exibição continuam iguais.
-  const showDatePicker = () => setDatePickerVisibility(true);
-  const hideDatePicker = () => setDatePickerVisibility(false);
-  const handleConfirm = (date) => {
-    setNascimento(date);
-    hideDatePicker();
+  const parseDate = (dataStr) => {
+    const partes = dataStr.split('/');
+    if (partes.length !== 3) return null;
+    const [dia, mes, ano] = partes;
+    const data = new Date(`${ano}-${mes}-${dia}`);
+    return isNaN(data.getTime()) ? null : data;
   };
-  const formatarDataParaExibicao = (data) => {
-    return data.toLocaleDateString('pt-BR');
-  };
-  // A função formatarDataParaDB foi removida pois não é mais necessária.
 
   const handleSalvar = async () => {
-    // Sua validação de campos continua igual.
-    if (!userId) {
-      setAlertMessage('Erro: ID do usuário não encontrado. Faça login novamente.');
-      return;
-    }
-    if (!nome || !especie || !raca || !nascimento || !sexo) {
+    if (!userId || !nome || !especie || !raca || !nascimento || !sexo) {
       setAlertMessage('Por favor, preencha todos os campos.');
       return;
     }
 
+    const dataNascimento = parseDate(nascimento);
+    if (!dataNascimento) {
+      setAlertMessage('Data de nascimento inválida. Use o formato dd/mm/aaaa.');
+      return;
+    }
+
     try {
-      // ======================= MUDANÇA 2: LÓGICA DE SALVAR =======================
-      // Em vez de chamar 'addPet', usamos 'addDoc' para salvar no Firestore.
-      // A coleção no Firestore se chamará 'pets'.
-      await addDoc(collection(db, 'pets'), {
-        donoId: userId, // Salva o ID do dono do pet
-        nome: nome,
-        especie: especie,
-        raca: raca,
-        sexo: sexo,
-        nascimento: Timestamp.fromDate(nascimento), // Salva a data no formato do Firestore
-        cadastradoEm: Timestamp.now(), // Salva a data atual do cadastro
-        imagemUri: null // Campo para a imagem, como no seu código original
+      const docRef = await addDoc(collection(db, 'pets'), {
+        donoid: userId,
+        name: nome,
+        species: especie,
+        breed: raca,
+        gender: sexo,
+        birthdate: Timestamp.fromDate(dataNascimento),
+        registeredAt: Timestamp.now(),
+        image_uri: null
       });
 
-      // O seu código de sucesso e limpeza de formulário continua igual
+      console.log("✅ Pet cadastrado com sucesso! ID:", docRef.id);
+
       setAlertMessage('Animal cadastrado com sucesso!');
       setNome('');
       setEspecie('');
       setRaca('');
       setSexo('');
-      setNascimento(null);
+      setNascimento('');
+
       setTimeout(() => {
         setAlertMessage('');
         router.replace('/screens/listpetScreen');
       }, 1500);
-      // =========================================================================
-
     } catch (error) {
-      console.error('Error saving animal to Firestore:', error);
-      setAlertMessage('Ocorreu um erro ao salvar o animal: ' + error.message);
+      console.error("Erro ao salvar o pet:", error);
+      setAlertMessage("Erro ao salvar o pet.");
     }
   };
 
-  // Seu return com a interface (JSX) continua igual, sem mudanças.
   return (
     <View style={styles.container}>
-      {/* ...seu JSX aqui... */}
+      <Text style={styles.title}>Cadastro de Animal</Text>
+      <TextInput style={styles.input} placeholder="Nome" value={nome} onChangeText={setNome} />
+      <TextInput style={styles.input} placeholder="Espécie" value={especie} onChangeText={setEspecie} />
+      <TextInput style={styles.input} placeholder="Raça" value={raca} onChangeText={setRaca} />
+      <TextInput style={styles.input} placeholder="Sexo" value={sexo} onChangeText={setSexo} />
+      <TextInput
+        style={styles.input}
+        placeholder="Data de Nascimento (dd/mm/aaaa)"
+        value={nascimento}
+        onChangeText={setNascimento}
+        keyboardType="numeric"
+      />
+      <Button title="Salvar" onPress={handleSalvar} />
+      <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
     </View>
   );
 }
 
-// Seus estilos do componente principal continuam iguais, sem mudanças.
-const styles = StyleSheet.create({ /* ...seus estilos aqui... */ });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    backgroundColor: "#fff"
+  },
+  title: {
+    fontSize: 22,
+    marginBottom: 20,
+    fontWeight: 'bold'
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 10
+  }
+});
+
+const alertStyles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  container: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 8,
+    elevation: 5,
+    width: '80%'
+  },
+  message: {
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: 'center'
+  },
+  button: {
+    backgroundColor: '#22C55E',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center'
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold'
+  }
+});
