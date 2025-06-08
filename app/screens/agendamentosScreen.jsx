@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// Importa a nova função de exclusão
+// Importa a nova função de exclusão https://www.youtube.com/watch?v=pAgnJDJN4VA
 import { deleteEvent, getAllEventsByUserId } from '../services/_firebaseServices';
 
 // NOVO COMPONENTE: Modal de confirmação personalizado
