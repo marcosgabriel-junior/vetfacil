@@ -3,8 +3,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { db } from '../services/firebaseConfig'; // <-- CORREÇÃO AQUI! Agora importa 'db' do seu firebaseConfig.js
-
+import { db } from '../services/firebaseconfig';
 
 export default function PetScreen() {
   const router = useRouter();
