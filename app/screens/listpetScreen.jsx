@@ -4,7 +4,11 @@ import { useRouter } from 'expo-router';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+<<<<<<< HEAD
 import { db } from '../services/firebaseconfig'; // Importa a conexão com o banco de dados
+=======
+import { db } from '../services/firebaseconfig';
+>>>>>>> 696870bf83235b9fd2c1a7cc95fb678582034b0e
 
 export default function Pet() {
   const router = useRouter();
@@ -19,7 +23,7 @@ export default function Pet() {
     try {
       const userId = await AsyncStorage.getItem('userLoggedInId');
 
-      // ======================= LINHA ADICIONADA PARA DEBUG =======================
+      // ======================= LINHA ADICIONADA PARA TESTE NAVEGADOR =======================
       console.log("Buscando pets para o User ID:", userId);
       // =========================================================================
 
