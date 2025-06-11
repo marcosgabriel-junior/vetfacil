@@ -1,51 +1,11 @@
 // index.jsx
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import React from 'react'; // O useEffect foi removido pois não é mais usado aqui
-import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Index() {
   const router = useRouter();
 
   // O bloco useEffect que chamava initDB() foi removido.
 
-  return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.container}>
-        <Pressable style={styles.botao} onPress={() => router.push('/screens/loginScreen')}>
-          <Text style={styles.texto}>Ir para Login</Text>
-        </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/screens/agendamentosScreen')}>
-          <Text style={styles.texto}>Ir para Agendamentos</Text>
-        </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/screens/configScreen')}>
-          <Text style={styles.texto}>Ir para Configuração</Text>
-        </Pressable>
-        <Pressable style={styles.botao} onPress={() => router.push('/screens/listpetScreen')}>
-          <Text style={styles.texto}>Ir para Meus Pets</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
+  return <Redirect href="/screens/loginScreen"/>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#021123',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 20
-  },
-  botao: {
-    width: "60%",
-    alignItems: "center",
-    backgroundColor: '#1E90FF',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10
-  },
-  texto: {
-    color: '#fff',
-    fontSize: 18
-  }
-});
