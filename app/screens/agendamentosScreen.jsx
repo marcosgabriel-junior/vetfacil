@@ -2,23 +2,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// Importa a nova função de exclusão https://www.youtube.com/watch?v=pAgnJDJN4VA
 import { deleteEvent, getAllEventsByUserId } from '../services/_firebaseServices';
 
-// NOVO COMPONENTE: Modal de confirmação personalizado
 const ConfirmationModal = ({ visible, eventName, onConfirm, onCancel }) => {
   return (
-    <Modal
-      transparent={true}
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onCancel}
-    >
+    <Modal transparent={true} visible={visible} animationType="fade" onRequestClose={onCancel}>
       <View style={modalStyles.overlay}>
         <View style={modalStyles.container}>
           <Text style={modalStyles.title}>Confirmar Exclusão</Text>
           <Text style={modalStyles.message}>
-            Tem certeza que deseja excluir o agendamento <Text style={{ fontWeight: 'bold' }}>"{eventName}"</Text>?
+            Tem certeza que deseja excluir o agendamento <Text style={{ fontWeight: 'bold' }}>
+              "{eventName}"
+            </Text>?
           </Text>
           <View style={modalStyles.buttonRow}>
             <TouchableOpacity onPress={onCancel} style={[modalStyles.button, modalStyles.cancelButton]}>
@@ -39,8 +34,6 @@ export default function Agendamentos() {
   const [pastEvents, setPastEvents] = useState([]);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Estados para controlar o modal de confirmação
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
 
@@ -62,13 +55,12 @@ export default function Agendamentos() {
   };
 
   const loadAllEvents = useCallback(async () => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
+    if (!userId) return;
     setLoading(true);
     try {
       const allEvents = await getAllEventsByUserId(userId);
+      console.log("Eventos recebidos:", allEvents);
+
       const now = new Date();
       now.setHours(0, 0, 0, 0);
 
@@ -76,9 +68,7 @@ export default function Agendamentos() {
       const past = [];
 
       allEvents.forEach(event => {
-        const eventDateTime = event.event_date?.toDate
-          ? event.event_date.toDate()
-          : new Date(`${event.event_date}T${event.event_time}`);
+        const eventDateTime = event.event_date?.toDate ? event.event_date.toDate() : new Date(`${event.event_date}T${event.event_time}`);
         eventDateTime.setHours(0, 0, 0, 0);
         if (eventDateTime >= now) {
           upcoming.push(event);
@@ -93,7 +83,7 @@ export default function Agendamentos() {
       setUpcomingEvents(upcoming);
       setPastEvents(past);
     } catch (error) {
-      console.error("Erro ao carregar todos os eventos:", error);
+      console.error("Erro ao carregar eventos:", error);
       Alert.alert("Erro", "Não foi possível carregar seus agendamentos.");
     } finally {
       setLoading(false);
@@ -108,30 +98,23 @@ export default function Agendamentos() {
     fetchUserId();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadAllEvents();
-    }, [loadAllEvents])
-  );
+  useFocusEffect(useCallback(() => {
+    loadAllEvents();
+  }, [loadAllEvents]));
 
-  // Função que ABRE o modal de confirmação
   const handleDeleteEvent = (eventId, eventName) => {
     setEventToDelete({ id: eventId, name: eventName });
     setIsConfirmingDelete(true);
   };
 
-  // Função que EXECUTA a exclusão após a confirmação
   const onConfirmDelete = async () => {
     if (!eventToDelete) return;
-    
     const result = await deleteEvent(eventToDelete.id);
-    
-    setIsConfirmingDelete(false); // Fecha o modal
-
+    setIsConfirmingDelete(false);
     if (result.success) {
       Alert.alert("Sucesso", "Agendamento excluído.");
       setEventToDelete(null);
-      loadAllEvents(); // Recarrega a lista
+      loadAllEvents();
     } else {
       Alert.alert("Erro", result.error);
       setEventToDelete(null);
@@ -146,9 +129,12 @@ export default function Agendamentos() {
         </View>
         <View style={styles.info}>
           <Text style={styles.tituloCard}>{item.event_name}</Text>
-          <Text style={styles.subtituloCard}>{item.event_type} - Pet: {item.pet_name || 'Desconhecido'}</Text>
+          <Text style={styles.subtituloCard}>Tipo: {item.event_type}</Text>
+          <Text style={styles.subtituloCard}>Pet: {item.pet_name}</Text>
+          <Text style={styles.subtituloCard}>Local: {item.location}</Text>
+          <Text style={styles.subtituloCard}>Observações: {item.notes}</Text>
+          <Text style={styles.subtituloCard}>Data: {formatDate(item.event_date)} às {item.event_time}</Text>
         </View>
-        <Text style={styles.data}>{formatDate(item.event_date)} às {item.event_time}</Text>
       </View>
       <TouchableOpacity onPress={() => handleDeleteEvent(item.id, item.event_name)} style={styles.deleteButton}>
         <Text style={styles.deleteButtonText}>🗑️</Text>
@@ -175,24 +161,14 @@ export default function Agendamentos() {
             {upcomingEvents.length === 0 ? (
               <Text style={styles.emptyText}>Nenhum agendamento futuro.</Text>
             ) : (
-              <FlatList
-                data={upcomingEvents}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderEventCard}
-                scrollEnabled={false}
-              />
+              <FlatList data={upcomingEvents} keyExtractor={(item) => item.id} renderItem={renderEventCard} scrollEnabled={false} />
             )}
 
             <Text style={styles.subtitulo}>Passados</Text>
             {pastEvents.length === 0 ? (
               <Text style={styles.emptyText}>Nenhum agendamento passado.</Text>
             ) : (
-              <FlatList
-                data={pastEvents}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderEventCard}
-                scrollEnabled={false}
-              />
+              <FlatList data={pastEvents} keyExtractor={(item) => item.id} renderItem={renderEventCard} scrollEnabled={false} />
             )}
           </>
         )}
@@ -205,87 +181,26 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, backgroundColor: "#FFFFFF" },
   titulo: { fontSize: 20, fontWeight: "700", textAlign: "center", marginBottom: 16 },
   subtitulo: { fontSize: 16, fontWeight: "600", color: "#1F2937", marginTop: 20, marginBottom: 12 },
-  card: {
-    flexDirection: "row", 
-    alignItems: "center", 
-    justifyContent: 'space-between',
-    backgroundColor: "#F0F4F7",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-  },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
+  card: { flexDirection: "row", alignItems: "center", justifyContent: 'space-between', backgroundColor: "#F0F4F7", borderRadius: 12, padding: 12, marginBottom: 12 },
+  cardContent: { flexDirection: "row", alignItems: "center", flex: 1 },
   iconeBox: { width: 40, height: 40, borderRadius: 8, backgroundColor: "#E5E7EB", alignItems: "center", justifyContent: "center", marginRight: 12 },
   icone: { width: 24, height: 24 },
   info: { flex: 1 },
   tituloCard: { fontSize: 16, fontWeight: "600" },
   subtituloCard: { fontSize: 14, color: "#6B7280" },
-  data: { fontSize: 14, color: "#6B7280", marginLeft: 8 },
-  deleteButton: {
-    paddingLeft: 10,
-  },
-  deleteButtonText: {
-    fontSize: 22,
-  },
+  deleteButton: { paddingLeft: 10 },
+  deleteButtonText: { fontSize: 22 },
   emptyText: { fontSize: 15, color: '#666', textAlign: 'center', marginTop: 10, marginBottom: 10 }
 });
 
-// Estilos para o novo modal de confirmação
 const modalStyles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  container: {
-    width: '90%',
-    maxWidth: 320,
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  message: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: '#E5E7EB',
-  },
-  confirmButton: {
-    backgroundColor: '#EF4444',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  overlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'center', alignItems: 'center' },
+  container: { width: '90%', maxWidth: 320, backgroundColor: 'white', borderRadius: 12, padding: 20, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 4, elevation: 5 },
+  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  message: { fontSize: 16, textAlign: 'center', marginBottom: 20, lineHeight: 22 },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
+  button: { flex: 1, paddingVertical: 10, borderRadius: 8, alignItems: 'center', marginHorizontal: 5 },
+  cancelButton: { backgroundColor: '#E5E7EB' },
+  confirmButton: { backgroundColor: '#EF4444' },
+  buttonText: { fontSize: 16, fontWeight: 'bold' }
 });

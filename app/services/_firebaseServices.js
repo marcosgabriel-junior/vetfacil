@@ -1,7 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
-import { collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore'; // Adicionado updateDoc
-import { auth, db } from './_firebaseconfig.js';
+import { collection, deleteDoc, doc, getDocs, query, setDoc, updateDoc, where, addDoc, Timestamp } from 'firebase/firestore'; // Adicionado updateDoc
+import { auth, db} from './_firebaseconfig.js';
+
+
+export async function addEvent(eventData, userId) {
+  try {
+    const newEvent = {
+      ...eventData,
+      user_id: userId,
+      created_at: new Date()
+    };
+
+    const docRef = await addDoc(collection(db, 'events'), newEvent);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error("Erro ao adicionar evento:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+
+//Adicionando eventos
 
 // ... (suas funções existentes como cadastrarUsuario, etc.)
 export const cadastrarUsuario = async (nome, email, senha) => {
@@ -49,36 +69,37 @@ export const getEventsByPetId = async (petId) => {
     }
   };
 export const getAllEventsByUserId = async (userId) => {
-  if (!userId) {
-    return [];
-  }
+  if (!userId) return [];
+
   try {
-    const petsRef = collection(db, 'pets');
-    const petsQuery = query(petsRef, where("donoid", "==", userId));
-    const petsSnapshot = await getDocs(petsQuery);
-    if (petsSnapshot.empty) {
-      return [];
+    // Pega os pets do usuário
+    const petsSnapshot = await getDocs(
+      query(collection(db, "pets"), where("donoid", "==", userId))
+    );
+    if (petsSnapshot.empty) return [];
+
+    const petIds = [];
+    petsSnapshot.docs.forEach(doc => petIds.push(doc.id));
+
+    const events = [];
+    const chunks = [];
+    const chunkSize = 10;
+    for (let i = 0; i < petIds.length; i += chunkSize) {
+      chunks.push(petIds.slice(i, i + chunkSize));
     }
-    const petMap = new Map();
-    petsSnapshot.docs.forEach(doc => {
-      petMap.set(doc.id, doc.data().name);
-    });
-    const petIds = Array.from(petMap.keys());
-    if (petIds.length === 0) return [];
-    const eventsRef = collection(db, 'events');
-    const eventsQuery = query(eventsRef, where("pet_id", "in", petIds));
-    const eventsSnapshot = await getDocs(eventsQuery);
-    const allEvents = eventsSnapshot.docs.map(eventDoc => {
-      const eventData = eventDoc.data();
-      return {
-        id: eventDoc.id,
-        ...eventData,
-        pet_name: petMap.get(eventData.pet_id) || 'Pet Desconhecido'
-      };
-    });
-    return allEvents;
-  } catch (error) {
-    console.error("Erro ao buscar todos os eventos do usuário:", error);
+
+    for (const chunk of chunks) {
+      const eventsSnapshot = await getDocs(
+        query(collection(db, "events"), where("pet_id", "in", chunk))
+      );
+      eventsSnapshot.docs.forEach(doc => {
+        events.push({ id: doc.id, ...doc.data() });
+      });
+    }
+
+    return events;
+  } catch (err) {
+    console.error("Erro getAllEventsByUserId:", err);
     return [];
   }
 };

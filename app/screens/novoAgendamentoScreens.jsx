@@ -1,12 +1,10 @@
 // novoAgendamentoScreens.jsx
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useLocalSearchParams, useRouter } from 'expo-router'; // Importa useLocalSearchParams
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { addEvent } from '../index'; // Importa a função do seu DB
+import { addEvent } from '../services/_firebaseServices';
 
-
-// Componente de Modal Customizada para substituir Alert
 const CustomAlert = ({ message, onClose }) => {
   if (!message) return null;
   return (
@@ -23,117 +21,72 @@ const CustomAlert = ({ message, onClose }) => {
 
 const alertStyles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', zIndex: 1000,
   },
   container: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    width: '80%',
-    maxWidth: 300,
+    backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', width: '80%', maxWidth: 300,
   },
-  message: {
-    fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  message: { fontSize: 16, marginBottom: 20, textAlign: 'center' },
   button: {
-    backgroundColor: '#22C55E',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    backgroundColor: '#22C55E', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8,
   },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
+  buttonText: { color: 'white', fontWeight: 'bold' },
 });
 
-export default function NovoAgendamentoScreen() { // Renomeado para consistência
+export default function NovoAgendamentoScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const petId = params?.petId; // Obtém o petId dos parâmetros da rota
+  const petId = params?.petId;
 
   const [eventName, setEventName] = useState("");
   const [eventType, setEventType] = useState("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [date, setData] = useState('', useState(''));
-  
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [eventDate, setEventDate] = useState("");
+  const [eventTime, setEventTime] = useState("");
   const [alertMessage, setAlertMessage] = useState('');
 
+  const [userId, setUserId] = useState(null);
+
   useEffect(() => {
-    if (!petId) {
-      setAlertMessage("Erro: ID do pet não fornecido. Retornando à lista de pets.");
-      setTimeout(() => router.replace('/screens/listpetScreen'), 1500);
-    }
-  }, [petId]);
-
-
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowDatePicker(Platform.OS === 'ios'); // No iOS o picker não fecha automaticamente
-    setData(currentDate);
-  };
-
-  const formatarDataParaDB = (data) => {
-    const year = data.getFullYear();
-    const month = (data.getMonth() + 1).toString().padStart(2, '0');
-    const day = data.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const formatarHoraParaDB = (data) => {
-    const hours = data.getHours().toString().padStart(2, '0');
-    const minutes = data.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-  };
+    const fetchUserId = async () => {
+      const id = await AsyncStorage.getItem('userLoggedInId');
+      setUserId(id);
+    };
+    fetchUserId();
+  }, []);
 
   const salvarEvento = async () => {
-    if (!petId) {
-      setAlertMessage("Erro: ID do pet não encontrado para salvar o evento.");
-      return;
-    }
-    if (!eventName || !eventType || !location || !date) {
-      setAlertMessage("Preencha todos os campos obrigatórios (Nome do evento, Tipo, Local, Data/Hora).");
+    if (!userId || !petId || !eventName || !eventType || !location || !eventDate || !eventTime) {
+      setAlertMessage("Preencha todos os campos obrigatórios.");
       return;
     }
 
     try {
-      const formattedDate = formatarDataParaDB(date);
-      const formattedTime = formatarHoraParaDB(date);
-
-      const eventInsertId = await addEvent(
-        parseInt(petId), // Garante que é um número inteiro
-        eventName,
-        eventType,
+      const eventData = {
+        pet_id: petId,
+        event_name: eventName,
+        event_type: eventType,
         location,
         notes,
-        formattedDate,
-        formattedTime
-      );
+        event_date: eventDate,
+        event_time: eventTime
+      };
 
-      if (eventInsertId) {
+      const result = await addEvent(eventData, userId);
+
+      if (result?.success) {
         setAlertMessage("Evento salvo com sucesso!");
-        // Limpa os campos após salvar
         setEventName("");
         setEventType("");
         setLocation("");
         setNotes("");
-        setData(new Date()); // Reseta a data para a atual
+        setEventDate("");
+        setEventTime("");
         setTimeout(() => {
           setAlertMessage('');
-          router.goBack(); // Volta para a tela anterior (petScreen)
+          router.back();
         }, 1500);
       } else {
         setAlertMessage("Erro ao salvar o evento.");
@@ -144,8 +97,6 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
     }
   };
 
-  
-
   return (
     <View style={styles.container}>
       <CustomAlert message={alertMessage} onClose={() => setAlertMessage('')} />
@@ -154,59 +105,41 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
 
       <TextInput
         style={styles.input}
-        placeholder="Nome do evento (ex: Vacina, Tosa)"
+        placeholder="Nome do evento"
         value={eventName}
         onChangeText={setEventName}
       />
       <TextInput
         style={styles.input}
-        placeholder="Tipo (Vacina, Consulta, etc)"
+        placeholder="Tipo do evento"
         value={eventType}
         onChangeText={setEventType}
       />
       <TextInput
         style={styles.input}
-        placeholder="Local (ex: Clínica Veterinária XYZ)"
+        placeholder="Local"
         value={location}
         onChangeText={setLocation}
       />
       <TextInput
         style={styles.input}
-        placeholder="Motivo / Observação"
+        placeholder="Observações"
         value={notes}
         onChangeText={setNotes}
         multiline
-        numberOfLines={3}
       />
-
       <TextInput
         style={styles.input}
-        placeholder="Escolher Data e Hora:"
-        value={date ? date.toLocaleString('pt-BR') : ''}
-        onFocus={() => setShowDatePicker(true)}
-        onChangeText={setData}
-        multiline
-        numberOfLines={3}
+        placeholder="Data (ex: 2025-06-20)"
+        value={eventDate}
+        onChangeText={setEventDate}
       />
-
-      <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-        <Text style={styles.dateButtonText}>
-          Data e Hora de hoje: {Date(date)}
-        </Text>
-      </TouchableOpacity>
-
-
-      {showDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="datetime"
-          is24Hour={true}
-          display="default"
-          onChange={handleDateChange}
-          locale="pt-BR"
-        />
-      )}
+      <TextInput
+        style={styles.input}
+        placeholder="Hora (ex: 14:30)"
+        value={eventTime}
+        onChangeText={setEventTime}
+      />
 
       <TouchableOpacity style={styles.button} onPress={salvarEvento}>
         <Text style={styles.buttonText}>Salvar Evento</Text>
@@ -216,47 +149,15 @@ export default function NovoAgendamentoScreen() { // Renomeado para consistênci
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: "#fff",
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: 'center',
-  },
+  container: { flex: 1, padding: 24, backgroundColor: "#fff" },
+  titulo: { fontSize: 24, fontWeight: "bold", marginBottom: 16, textAlign: 'center' },
   input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 8,
-    fontSize: 16,
-  },
-  dateButton: {
-    backgroundColor: '#F0F0F0',
-    padding: 12,
-    borderRadius: 8,
-    fontSize: 16,
-    marginBottom: 12,
-    justifyContent: 'center',
-    minHeight: 50,
-  },
-  dateButtonText: {
-    fontSize: 16,
-    color: '#333',
+    borderWidth: 1, borderColor: "#ccc", padding: 12,
+    marginBottom: 12, borderRadius: 8, fontSize: 16,
   },
   button: {
-    backgroundColor: '#4CAF50',
-    padding: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 24,
+    backgroundColor: '#4CAF50', padding: 14,
+    borderRadius: 8, alignItems: 'center', marginTop: 24,
   },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 18,
-  },
+  buttonText: { color: '#FFF', fontSize: 18 },
 });
