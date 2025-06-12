@@ -112,7 +112,15 @@ export default function PetScreen() {
           if (details) {
             setPetDetails(details);
             const events = await getEventsByPetIdFirestore(petId);
-            setPetEvents(events);
+
+            // Filtra eventos futuros (data igual ou posterior ao dia atual)
+            const hoje = new Date();
+            const eventosFuturos = events.filter(event => {
+              const dataEvento = event.event_date?.toDate ? event.event_date.toDate() : new Date(event.event_date);
+              return dataEvento.setHours(0, 0, 0, 0) >= hoje.setHours(0, 0, 0, 0);
+            });
+
+            setPetEvents(eventosFuturos);
           } else {
             Alert.alert("Erro", "Pet não encontrado.");
             router.replace('/screens/listpetScreen');
